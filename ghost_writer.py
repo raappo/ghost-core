@@ -2,6 +2,7 @@ import os
 import time
 import re
 import requests
+import urllib.parse
 from google import genai
 from google.genai import types
 from supabase import create_client
@@ -211,177 +212,233 @@ def process_body_content(raw_content: str) -> str:
 def render_base_template(title: str, content: str, is_home: bool = True) -> str:
     root = "" if is_home else "../"
     return f"""<!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>{title} | RAAPPO Global Intelligence</title>
     <meta name="description" content="RAAPPO Global Intelligence — Daily technology briefings on 2026's most consequential breakthroughs.">
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {{
+        darkMode: 'class',
+        theme: {{
+          extend: {{
+            colors: {{
+              brand: {{
+                400: '#38bdf8',
+                500: '#0ea5e9',
+                600: '#0284c7',
+              }},
+              dark: {{
+                900: '#0a0a0a',
+                800: '#171717',
+                700: '#262626',
+              }}
+            }},
+            fontFamily: {{
+              sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+              serif: ['"Lora"', 'serif'],
+              mono: ['"Fira Code"', 'monospace'],
+            }}
+          }}
+        }}
+      }}
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=Lora:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
     <style>
-        :root {{
-            --color-accent:  #2563eb;
-            --color-accent2: #0ea5e9;
-            --color-bg:      #f8f9fb;
-            --color-surface: #ffffff;
-            --color-text:    #1a1a2e;
-            --radius-card:   1rem;
+        body {{
+            background-color: #0a0a0a;
+            color: #e5e5e5;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }}
+        
+        ::selection {{ background: rgba(14, 165, 233, 0.3); color: #fff; }}
+        ::-webkit-scrollbar {{ width: 8px; }}
+        ::-webkit-scrollbar-track {{ background: #0a0a0a; }}
+        ::-webkit-scrollbar-thumb {{ background: #262626; border-radius: 4px; }}
+        ::-webkit-scrollbar-thumb:hover {{ background: #404040; }}
+
+        /* Background Glow Orb */
+        .glow-orb {{
+            position: absolute;
+            top: -200px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 800px;
+            height: 400px;
+            background: radial-gradient(ellipse at center, rgba(14,165,233,0.15) 0%, rgba(10,10,10,0) 70%);
+            pointer-events: none;
+            z-index: -1;
         }}
 
-        *, *::before, *::after {{ box-sizing: border-box; }}
-        html {{ scroll-behavior: smooth; }}
-        body  {{ font-family: "Plus Jakarta Sans", sans-serif; background: var(--color-bg); color: var(--color-text); -webkit-font-smoothing: antialiased; }}
-
-        /* ── Scrollbar ── */
-        ::-webkit-scrollbar {{ width: 6px; }}
-        ::-webkit-scrollbar-track {{ background: transparent; }}
-        ::-webkit-scrollbar-thumb {{ background: #cbd5e1; border-radius: 999px; }}
-
-        /* ── Line clamp ── */
         .clamp-2 {{ display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }}
         .clamp-3 {{ display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }}
 
-        /* ── Article typography ── */
-        .prose {{ font-family: "Lora", Georgia, serif; color: #374151; }}
-        .prose p  {{ font-size: 1.125rem; line-height: 1.9; margin-bottom: 2rem; color: #374151; }}
-        .prose h2 {{ font-family: "Plus Jakarta Sans", sans-serif; font-size: 1.65rem; font-weight: 800; color: #0f172a; margin-top: 3.5rem; margin-bottom: 1.25rem; padding-bottom: 0.75rem; border-bottom: 2px solid #f1f5f9; }}
-        .prose h3 {{ font-family: "Plus Jakarta Sans", sans-serif; font-size: 1.3rem; font-weight: 700; color: #1e293b; margin-top: 2.5rem; margin-bottom: 0.9rem; }}
-        .prose h4 {{ font-family: "Plus Jakarta Sans", sans-serif; font-size: 1.1rem; font-weight: 700; color: #374151; margin-top: 2rem; margin-bottom: 0.75rem; }}
-        .prose ul {{ list-style: disc; padding-left: 1.75rem; margin-bottom: 2rem; }}
-        .prose ol {{ list-style: decimal; padding-left: 1.75rem; margin-bottom: 2rem; }}
-        .prose li {{ font-size: 1.05rem; line-height: 1.85; margin-bottom: 0.6rem; color: #374151; }}
-        .prose strong {{ font-weight: 700; color: #111827; font-family: "Plus Jakarta Sans", sans-serif; }}
-        .prose em    {{ font-style: italic; }}
-        .prose code  {{ background: #f1f5f9; color: #2563eb; padding: 0.15rem 0.4rem; border-radius: 0.25rem; font-family: "Fira Code", monospace; font-size: 0.875em; }}
-        .prose blockquote {{ border-left: 3px solid var(--color-accent); padding: 0.5rem 1.25rem; margin: 2.5rem 0; font-style: italic; color: #64748b; background: #f8fafc; border-radius: 0 0.5rem 0.5rem 0; }}
-
-        /* ── Card hover ring ── */
-        .card {{ transition: box-shadow 0.4s ease, transform 0.4s ease, border-color 0.4s ease; }}
-        .card:hover {{ box-shadow: 0 12px 40px rgba(37,99,235,0.12); transform: translateY(-4px); border-color: #93c5fd; }}
-
-        /* ── Badge pill ── */
-        .badge {{ display: inline-flex; align-items: center; gap: 0.3rem; font-size: 0.65rem; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; padding: 0.25rem 0.65rem; border-radius: 999px; }}
-        .badge-premium {{ background: linear-gradient(135deg, #1e3a8a, #3b82f6); color: white; border: none; box-shadow: 0 4px 15px rgba(37,99,235,0.3); }}
-
-        /* ── Mobile menu ── */
-        #mobile-menu {{ display: none; }}
-        #mobile-menu.open {{ display: block; }}
-
-        /* ── Reading progress bar ── */
-        #progress-bar {{
-            position: fixed; top: 0; left: 0; height: 3px;
-            background: linear-gradient(90deg, var(--color-accent), var(--color-accent2));
-            width: 0%; z-index: 200; transition: width 0.1s linear;
+        /* Glass Nav */
+        .glass-nav {{
+            background: rgba(10, 10, 10, 0.65);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
         }}
 
-        /* ── Fade-in on scroll ── */
-        .reveal {{ opacity: 0; transform: translateY(18px); transition: opacity 0.5s ease, transform 0.5s ease; }}
+        /* Typography tweaks */
+        .prose {{ font-family: "Lora", serif; font-size: 1.15rem; line-height: 1.9; color: #d4d4d8; }}
+        .prose p {{ margin-bottom: 2rem; }}
+        .prose h2 {{ font-family: "Plus Jakarta Sans", sans-serif; font-size: 1.8rem; font-weight: 800; color: #ffffff; margin-top: 4rem; margin-bottom: 1.5rem; letter-spacing: -0.02em; border-bottom: 1px solid #262626; padding-bottom: 0.5rem; }}
+        .prose h3 {{ font-family: "Plus Jakarta Sans", sans-serif; font-size: 1.4rem; font-weight: 700; color: #f4f4f5; margin-top: 3rem; margin-bottom: 1rem; }}
+        .prose h4 {{ font-family: "Plus Jakarta Sans", sans-serif; font-size: 1.2rem; font-weight: 700; color: #f4f4f5; margin-top: 2rem; margin-bottom: 0.75rem; }}
+        .prose ul, .prose ol {{ margin-bottom: 2rem; padding-left: 1.5rem; }}
+        .prose li {{ margin-bottom: 0.75rem; }}
+        .prose strong {{ color: #ffffff; font-weight: 600; font-family: "Plus Jakarta Sans", sans-serif; }}
+        .prose a {{ color: #38bdf8; text-decoration: none; border-bottom: 1px solid rgba(56,189,248,0.3); transition: border-color 0.2s; }}
+        .prose a:hover {{ border-color: rgba(56,189,248,1); }}
+        .prose blockquote {{ border-left: 3px solid #0ea5e9; padding: 1rem 1.5rem; font-style: italic; color: #a1a1aa; margin: 2.5rem 0; background: #171717; border-radius: 0 0.5rem 0.5rem 0; }}
+        .prose code {{ background: #171717; color: #38bdf8; padding: 0.2rem 0.4rem; border-radius: 0.25rem; font-family: "Fira Code", monospace; font-size: 0.85em; border: 1px solid #262626; }}
+
+        /* Premium Cards */
+        .card-premium {{
+            background: rgba(23, 23, 23, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }}
+        .card-premium:hover {{
+            transform: translateY(-4px);
+            background: rgba(23, 23, 23, 0.8);
+            border-color: rgba(14, 165, 233, 0.3);
+            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.5), 0 0 20px rgba(14, 165, 233, 0.1);
+        }}
+
+        /* Badges */
+        .badge {{
+            font-size: 0.7rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+            padding: 0.25rem 0.75rem; border-radius: 999px;
+            background: rgba(14, 165, 233, 0.1);
+            color: #38bdf8;
+            border: 1px solid rgba(14, 165, 233, 0.2);
+            display: inline-flex; align-items: center; gap: 0.3rem;
+        }}
+        .badge-pulse {{ position: relative; padding-left: 1.75rem; }}
+        .badge-pulse::before {{
+            content: ''; position: absolute; left: 0.6rem; top: 50%; transform: translateY(-50%);
+            width: 6px; height: 6px; border-radius: 50%; background: #38bdf8;
+            box-shadow: 0 0 8px #38bdf8; animation: pulse 2s infinite;
+        }}
+
+        @keyframes pulse {{
+            0% {{ opacity: 1; box-shadow: 0 0 0 0 rgba(56,189,248, 0.4); }}
+            70% {{ opacity: 0.5; box-shadow: 0 0 0 4px rgba(56,189,248, 0); }}
+            100% {{ opacity: 1; box-shadow: 0 0 0 0 rgba(56,189,248, 0); }}
+        }}
+
+        /* Reveal Animation */
+        .reveal {{ opacity: 0; transform: translateY(20px); transition: opacity 0.8s ease-out, transform 0.8s ease-out; }}
         .reveal.visible {{ opacity: 1; transform: translateY(0); }}
+
+        #progress-bar {{
+            position: fixed; top: 0; left: 0; height: 2px;
+            background: #0ea5e9;
+            box-shadow: 0 0 10px #0ea5e9;
+            width: 0%; z-index: 200; transition: width 0.1s;
+        }}
     </style>
 </head>
-<body>
+<body class="antialiased relative">
+    <div class="glow-orb"></div>
     <div id="progress-bar"></div>
 
     <!-- ── Navbar ── -->
-    <nav class="sticky top-0 z-[100] bg-white/70 backdrop-blur-2xl border-b border-gray-100/50 shadow-[0_4px_30px_rgba(0,0,0,0.03)]">
-        <div class="max-w-6xl mx-auto px-5 h-16 flex items-center justify-between gap-4">
-
-            <a href="{root}index.html" class="flex items-center gap-2 shrink-0 group">
-                <span class="w-7 h-7 rounded-lg bg-blue-600 flex items-center justify-center">
-                    <span class="text-white text-xs font-black">R</span>
-                </span>
-                <span class="text-lg font-extrabold tracking-tight text-gray-900 group-hover:text-blue-600 transition">RAAPPO<span class="text-blue-600">.</span></span>
+    <nav class="sticky top-0 z-[100] glass-nav transition-all duration-300" id="navbar">
+        <div class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+            <a href="{root}index.html" class="flex items-center gap-3 group">
+                <div class="w-8 h-8 rounded bg-gradient-to-br from-brand-400 to-brand-600 flex items-center justify-center shadow-[0_0_15px_rgba(14,165,233,0.3)] group-hover:shadow-[0_0_20px_rgba(14,165,233,0.5)] transition-all duration-300">
+                    <span class="text-white text-sm font-black tracking-tighter">R</span>
+                </div>
+                <span class="text-lg font-extrabold tracking-tight text-white group-hover:text-brand-400 transition-colors">RAAPPO<span class="text-brand-500">.</span></span>
             </a>
 
-            <div class="hidden lg:flex items-center gap-7">
-                <a href="{root}index.html"           class="text-[11px] font-black uppercase tracking-[0.15em] text-gray-500 hover:text-blue-600 transition">Home</a>
-                <a href="{root}index.html#latest"    class="text-[11px] font-black uppercase tracking-[0.15em] text-gray-500 hover:text-blue-600 transition">Latest</a>
-                <a href="{root}index.html#archive"   class="text-[11px] font-black uppercase tracking-[0.15em] text-gray-500 hover:text-blue-600 transition">Archive</a>
-                <a href="{root}index.html#about"     class="text-[11px] font-black uppercase tracking-[0.15em] text-gray-500 hover:text-blue-600 transition">About</a>
+            <div class="hidden md:flex items-center gap-8">
+                <a href="{root}index.html"           class="text-[11px] font-bold uppercase tracking-[0.2em] text-neutral-400 hover:text-white transition-colors">Intelligence</a>
+                <a href="{root}index.html#archive"   class="text-[11px] font-bold uppercase tracking-[0.2em] text-neutral-400 hover:text-white transition-colors">Archive</a>
             </div>
 
-            <div class="flex items-center gap-3">
-                <span class="hidden sm:inline-flex badge bg-emerald-50 text-emerald-600 border border-emerald-200">
-                    <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span>
-                    Live 2026
-                </span>
-                <button id="hamburger-btn"
-                    class="lg:hidden w-9 h-9 flex flex-col items-center justify-center gap-[5px] rounded-lg border border-gray-200 hover:bg-gray-50 transition"
-                    aria-label="Open menu"
-                    onclick="document.getElementById('mobile-menu').classList.toggle('open')">
-                    <span class="w-4.5 h-[2px] bg-gray-700 rounded-full block w-5"></span>
-                    <span class="w-4.5 h-[2px] bg-gray-700 rounded-full block w-5"></span>
-                    <span class="w-4.5 h-[2px] bg-gray-700 rounded-full block w-5"></span>
+            <div class="flex items-center gap-4">
+                <span class="hidden sm:inline-flex badge badge-pulse">Live 2026</span>
+                <button id="hamburger-btn" class="md:hidden text-neutral-300 hover:text-white" aria-label="Open menu" onclick="document.getElementById('mobile-menu').classList.toggle('hidden')">
+                    <span class="block w-5 h-[2px] bg-white mb-1"></span>
+                    <span class="block w-5 h-[2px] bg-white mb-1"></span>
+                    <span class="block w-5 h-[2px] bg-white"></span>
                 </button>
             </div>
         </div>
-
-        <div id="mobile-menu" class="lg:hidden bg-white border-t border-gray-100 px-5 py-3">
-            <ul class="flex flex-col gap-1">
-                <li><a href="{root}index.html"         class="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition">🏠 Home</a></li>
-                <li><a href="{root}index.html#latest"  class="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition">⚡ Latest</a></li>
-                <li><a href="{root}index.html#archive" class="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition">📚 Archive</a></li>
-                <li><a href="{root}index.html#about"   class="flex items-center gap-2 px-4 py-2.5 rounded-xl text-sm font-bold text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition">ℹ️ About</a></li>
+        <div id="mobile-menu" class="hidden md:hidden bg-dark-900 border-b border-neutral-800 px-6 py-4 absolute w-full">
+            <ul class="flex flex-col gap-4">
+                <li><a href="{root}index.html" class="text-sm font-bold uppercase tracking-widest text-neutral-300 hover:text-brand-400">Intelligence</a></li>
+                <li><a href="{root}index.html#archive" class="text-sm font-bold uppercase tracking-widest text-neutral-300 hover:text-brand-400">Archive</a></li>
             </ul>
         </div>
     </nav>
 
     <!-- ── Page content ── -->
-    <main class="max-w-6xl mx-auto px-5 py-10">
+    <main class="relative z-10 pt-10 pb-20">
         {content}
     </main>
 
     <!-- ── Footer ── -->
-    <footer class="bg-gray-950 text-gray-400 mt-20">
-        <div class="max-w-6xl mx-auto px-5 pt-12 pb-8">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-10 mb-10">
-                <div>
-                    <div class="flex items-center gap-2 mb-3">
-                        <span class="w-6 h-6 rounded-md bg-blue-600 flex items-center justify-center">
+    <footer class="border-t border-neutral-800 bg-dark-900/50 mt-20">
+        <div class="max-w-6xl mx-auto px-6 py-12 md:py-16">
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-10 md:gap-6">
+                <div class="md:col-span-5">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-6 h-6 rounded bg-brand-500 flex items-center justify-center">
                             <span class="text-white text-[10px] font-black">R</span>
-                        </span>
-                        <span class="text-base font-black text-white tracking-tight">RAAPPO<span class="text-blue-400">.</span></span>
+                        </div>
+                        <span class="text-lg font-black text-white tracking-tight">RAAPPO Global Intelligence</span>
                     </div>
-                    <p class="text-gray-500 text-sm leading-relaxed">Daily technology intelligence — covering 2026's most consequential breakthroughs in AI, energy, materials, and computing.</p>
+                    <p class="text-neutral-400 text-sm leading-relaxed max-w-sm">Decentralized, AI-augmented intelligence briefings covering 2026's most consequential breakthroughs in quantum computing, AGI, and synthetic biology.</p>
                 </div>
-                <div>
-                    <h4 class="font-bold uppercase tracking-widest text-[10px] text-gray-600 mb-4">Navigate</h4>
-                    <ul class="space-y-2.5 text-sm font-medium">
-                        <li><a href="{root}index.html"         class="hover:text-white transition">Front Page</a></li>
-                        <li><a href="{root}index.html#latest"  class="hover:text-white transition">Latest</a></li>
-                        <li><a href="{root}index.html#archive" class="hover:text-white transition">Archive</a></li>
-                        <li><a href="{root}index.html#about"   class="hover:text-white transition">About</a></li>
+                <div class="md:col-span-3">
+                    <h4 class="font-bold uppercase tracking-[0.2em] text-[10px] text-neutral-500 mb-5">Navigation</h4>
+                    <ul class="space-y-3 text-sm text-neutral-400">
+                        <li><a href="{root}index.html" class="hover:text-brand-400 transition-colors">Front Page</a></li>
+                        <li><a href="{root}index.html#archive" class="hover:text-brand-400 transition-colors">Archives</a></li>
                     </ul>
                 </div>
-                <div>
-                    <h4 class="font-bold uppercase tracking-widest text-[10px] text-gray-600 mb-4">System</h4>
-                    <div class="flex items-center gap-2 text-sm text-emerald-400 font-semibold mb-3">
-                        <span class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span>
-                        All systems operational
+                <div class="md:col-span-4">
+                    <h4 class="font-bold uppercase tracking-[0.2em] text-[10px] text-neutral-500 mb-5">System Status</h4>
+                    <div class="bg-dark-800/50 rounded-lg p-4 border border-neutral-800/80 inline-block w-full">
+                        <div class="flex items-center gap-3 mb-2">
+                            <span class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span>
+                            <span class="text-sm text-emerald-400 font-bold tracking-wide">Network Nominal</span>
+                        </div>
+                        <div class="text-[11px] text-neutral-500 uppercase tracking-wider font-mono">
+                            Node: eu-central-1<br>
+                            Engine: Gemini 1.5 Flash
+                        </div>
                     </div>
-                    <p class="text-xs text-gray-600">Powered by Gemini 2.5 · Supabase · Cloudflare Pages</p>
                 </div>
             </div>
-            <div class="border-t border-gray-900 pt-6 flex flex-col md:flex-row justify-between items-center gap-3 text-xs text-gray-600">
-                <p>© 2026 RAAPPO Global Intelligence. All rights reserved.</p>
-                <div class="flex gap-5 uppercase tracking-widest font-bold">
-                    <a href="#" class="hover:text-gray-300 transition">Privacy</a>
-                    <a href="#" class="hover:text-gray-300 transition">Terms</a>
-                    <a href="#" class="hover:text-gray-300 transition">RSS</a>
+            <div class="border-t border-neutral-800/80 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-[11px] text-neutral-500 uppercase tracking-widest font-semibold">
+                <p>© 2026 RAAPPO. All rights reserved.</p>
+                <div class="flex gap-6">
+                    <a href="#" class="hover:text-brand-400 transition-colors">Privacy</a>
+                    <a href="#" class="hover:text-brand-400 transition-colors">Terms</a>
+                    <a href="#" class="hover:text-brand-400 transition-colors">Data Policy</a>
                 </div>
             </div>
         </div>
     </footer>
 
-    <!-- ── Reading progress + scroll reveals ── -->
     <script>
         // Progress bar
         window.addEventListener("scroll", () => {{
-            const el   = document.getElementById("progress-bar");
-            const doc  = document.documentElement;
-            const pct  = (doc.scrollTop / (doc.scrollHeight - doc.clientHeight)) * 100;
+            const el = document.getElementById("progress-bar");
+            const doc = document.documentElement;
+            const pct = (doc.scrollTop / (doc.scrollHeight - doc.clientHeight)) * 100;
             if (el) el.style.width = pct + "%";
         }});
 
@@ -389,7 +446,7 @@ def render_base_template(title: str, content: str, is_home: bool = True) -> str:
         const revealEls = document.querySelectorAll(".reveal");
         const obs = new IntersectionObserver((entries) => {{
             entries.forEach(e => {{ if (e.isIntersecting) e.target.classList.add("visible"); }});
-        }}, {{ threshold: 0.12 }});
+        }}, {{ threshold: 0.1 }});
         revealEls.forEach(el => obs.observe(el));
     </script>
 </body>
@@ -406,48 +463,46 @@ def render_post_page(post: dict, img_path: str) -> None:
     img_src    = get_asset_url(post_id, root="../")
 
     content = f"""
-    <div class="max-w-3xl mx-auto">
-
+    <div class="max-w-3xl mx-auto px-5">
         <!-- Breadcrumb -->
-        <nav class="mb-8 text-sm font-medium text-gray-500 flex items-center gap-2 flex-wrap">
-            <a href="../index.html" class="hover:text-blue-600 transition font-semibold">Home</a>
-            <span class="text-gray-300">/</span>
-            <span class="text-gray-700 truncate max-w-xs">{post_title}</span>
+        <nav class="mb-10 text-[11px] font-bold uppercase tracking-widest text-neutral-500 flex items-center gap-3 flex-wrap reveal">
+            <a href="../index.html" class="hover:text-brand-400 transition-colors">Intelligence</a>
+            <span class="text-neutral-700">/</span>
+            <span class="text-neutral-300 truncate max-w-xs">{{post_title}}</span>
         </nav>
 
-        <article>
+        <article class="reveal">
             <!-- Header -->
-            <header class="mb-10">
-                <div class="flex flex-wrap items-center gap-3 mb-5">
-                    <span class="badge bg-blue-600 text-white">Technical Analysis</span>
-                    <span class="text-gray-400 text-sm">{post_date}</span>
-                    <span class="text-gray-300">·</span>
-                    <span class="text-gray-400 text-sm">5 min read</span>
+            <header class="mb-12">
+                <div class="flex flex-wrap items-center gap-4 mb-6">
+                    <span class="badge">Classified Report</span>
+                    <span class="text-neutral-400 text-xs font-mono tracking-wider">{{post_date}}</span>
                 </div>
-                <h1 class="text-3xl md:text-4xl font-extrabold leading-tight text-gray-900 mb-5 tracking-tight">{post_title}</h1>
+                <h1 class="text-4xl md:text-5xl font-extrabold leading-[1.15] text-white mb-6 tracking-tight drop-shadow-sm">{{post_title}}</h1>
             </header>
 
             <!-- Hero image -->
-            <figure class="mb-12 rounded-3xl overflow-hidden shadow-2xl border border-gray-100/50 relative group">
-                <div class="absolute inset-0 bg-gradient-to-t from-gray-900/20 to-transparent z-10 pointer-events-none"></div>
-                <img src="{img_src}"
-                     alt="{post_title}"
-                     class="w-full h-auto max-h-[450px] object-cover group-hover:scale-[1.02] transition-transform duration-700 ease-in-out"
+            <figure class="mb-14 rounded-2xl overflow-hidden shadow-[0_0_40px_rgba(0,0,0,0.5)] border border-neutral-800 relative group">
+                <div class="absolute inset-0 bg-gradient-to-t from-dark-900/60 via-transparent to-transparent z-10 pointer-events-none"></div>
+                <img src="{{img_src}}"
+                     alt="{{post_title}}"
+                     class="w-full h-auto max-h-[500px] object-cover group-hover:scale-105 transition-transform duration-1000 ease-out"
                      loading="eager">
             </figure>
 
             <!-- Body -->
             <div class="prose">
-                {body_html}
+                {{body_html}}
             </div>
 
             <!-- Footer -->
-            <footer class="mt-14 pt-7 border-t border-gray-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <footer class="mt-20 pt-8 border-t border-neutral-800 flex flex-col sm:flex-row items-center justify-between gap-6">
                 <a href="../index.html"
-                   class="inline-flex items-center gap-2 text-blue-600 font-bold hover:gap-3 transition-all text-sm">
-                    ← Back to all articles
+                   class="inline-flex items-center gap-2 bg-dark-800 hover:bg-dark-700 border border-neutral-700 text-white px-6 py-3 rounded-full font-bold text-sm transition-all group">
+                    <span class="group-hover:-translate-x-1 transition-transform">←</span>
+                    Return to Feed
                 </a>
-                <span class="text-xs text-gray-400 uppercase tracking-widest font-bold">RAAPPO · Global Intelligence</span>
+                <span class="text-[10px] text-neutral-600 uppercase tracking-[0.2em] font-bold">End of Report</span>
             </footer>
         </article>
     </div>
@@ -466,26 +521,25 @@ def build_homepage(all_posts: list, hero_summary: str, target_id: int) -> None:
     hero = all_posts[0]
     hero_img = get_asset_url(hero["id"])
 
-    # ── Featured hero (compact, editorial) ──────────────────────────
+    # ── Featured hero ──────────────────────────
     hero_html = f"""
-    <section id="latest" class="mb-16 reveal">
-        <div class="relative rounded-[2rem] overflow-hidden bg-gray-950 h-[320px] md:h-[400px] flex items-end shadow-2xl group">
-            <img src="{hero_img}"
-                 alt="{hero["title"]}"
-                 class="absolute inset-0 w-full h-full object-cover opacity-40 group-hover:opacity-50 group-hover:scale-105 transition-all duration-700 ease-in-out">
-            <div class="absolute inset-0 bg-gradient-to-t from-gray-950 via-gray-950/60 to-transparent"></div>
-            <div class="relative z-10 p-7 md:p-12 max-w-2xl translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
-                <div class="flex flex-wrap items-center gap-2 mb-4">
-                    <span class="badge badge-premium">Featured</span>
-                    <span class="text-gray-300 text-xs font-semibold tracking-wide uppercase">{hero["created_at"][:10]}</span>
+    <section class="mb-20 px-5 reveal">
+        <div class="relative rounded-[2rem] overflow-hidden bg-dark-900 h-[450px] md:h-[550px] flex items-end shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-neutral-800 group cursor-pointer" onclick="window.location.href='posts/post_{{hero["id"]}}.html'">
+            <img src="{{hero_img}}"
+                 alt="{{hero["title"]}}"
+                 class="absolute inset-0 w-full h-full object-cover opacity-50 group-hover:opacity-60 group-hover:scale-[1.03] transition-all duration-1000 ease-out">
+            <div class="absolute inset-0 bg-gradient-to-t from-dark-900 via-dark-900/60 to-transparent pointer-events-none"></div>
+            <div class="relative z-10 p-8 md:p-14 max-w-4xl">
+                <div class="flex flex-wrap items-center gap-3 mb-5">
+                    <span class="badge badge-pulse">Top Story</span>
+                    <span class="text-brand-400 text-xs font-mono tracking-wider">{{hero["created_at"][:10]}}</span>
                 </div>
-                <h2 class="text-2xl md:text-4xl font-extrabold text-white mb-4 leading-tight tracking-tight clamp-3 drop-shadow-lg">{hero["title"]}</h2>
-                <p class="text-gray-300 text-sm md:text-base mb-6 leading-relaxed clamp-2 drop-shadow-md">{hero_summary}</p>
-                <a href="posts/post_{hero["id"]}.html"
-                   class="inline-flex items-center gap-2 bg-white/90 backdrop-blur-sm text-gray-900 px-6 py-2.5 rounded-full font-bold text-sm hover:bg-white hover:text-blue-600 hover:shadow-lg hover:shadow-white/20 transition-all group/btn">
-                    Read Full Report
+                <h2 class="text-3xl md:text-5xl font-extrabold text-white mb-5 leading-[1.15] tracking-tight clamp-3 drop-shadow-md">{{hero["title"]}}</h2>
+                <p class="text-neutral-300 text-base md:text-lg mb-8 leading-relaxed clamp-2 max-w-2xl drop-shadow">{{hero_summary}}</p>
+                <div class="inline-flex items-center gap-3 bg-white text-dark-900 px-7 py-3.5 rounded-full font-bold text-sm hover:bg-brand-400 hover:text-white transition-all duration-300 group/btn">
+                    Read Intelligence Report
                     <span class="group-hover/btn:translate-x-1 transition-transform">→</span>
-                </a>
+                </div>
             </div>
         </div>
     </section>
@@ -493,107 +547,52 @@ def build_homepage(all_posts: list, hero_summary: str, target_id: int) -> None:
 
     # ── Article cards grid ────────────────────────────────────────
     cards_html = ""
-    category_colors = {
-        "Breaking": "bg-red-50 text-red-600",
-        "Deep Dive": "bg-blue-50 text-blue-600",
-        "Analysis": "bg-amber-50 text-amber-700",
-        "Technical Analysis": "bg-purple-50 text-purple-600",
-    }
-
     for post in all_posts:
         p_id    = post["id"]
         p_title = post["title"]
         p_date  = post["created_at"][:10]
         thumb   = get_asset_url(p_id)
-        cat     = "Breaking"
-        cat_cls = category_colors.get(cat, "bg-blue-50 text-blue-600")
-
+        
         cards_html += f"""
-        <a href="posts/post_{p_id}.html"
-           class="card group block bg-white border border-gray-100 rounded-2xl overflow-hidden">
-            <div class="aspect-video bg-gray-100 overflow-hidden">
-                <img src="{thumb}"
-                     alt="{p_title}"
-                     loading="lazy"
-                     class="w-full h-full object-cover group-hover:scale-[1.03] transition-transform duration-500">
+        <a href="posts/post_{p_id}.html" class="card-premium group block rounded-2xl overflow-hidden flex flex-col relative h-[380px]">
+            <div class="h-48 overflow-hidden relative shrink-0">
+                <div class="absolute inset-0 bg-dark-900/20 group-hover:bg-transparent transition-colors z-10"></div>
+                <img src="{{thumb}}" alt="{{p_title}}" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out">
             </div>
-            <div class="p-5">
-                <div class="flex items-center gap-2 mb-2.5">
-                    <span class="badge {cat_cls}">{cat}</span>
-                    <span class="text-gray-400 text-[11px] font-medium">{p_date}</span>
+            <div class="p-6 flex flex-col flex-grow bg-dark-800/30">
+                <div class="flex items-center gap-3 mb-4">
+                    <span class="w-1.5 h-1.5 bg-brand-500 rounded-full"></span>
+                    <span class="text-neutral-500 text-[10px] font-mono tracking-widest">{{p_date}}</span>
                 </div>
-                <h3 class="text-base font-bold text-gray-900 group-hover:text-blue-600 clamp-2 leading-snug mb-2">{p_title}</h3>
-                <span class="text-xs text-blue-600 font-bold flex items-center gap-1 group-hover:gap-2 transition-all mt-3">
-                    Read more <span>→</span>
-                </span>
-            </div>
-        </a>
-        """
-
-    # ── Latest strip (top 3, horizontal compact) ─────────────────
-    strip_html = ""
-    for post in all_posts[1:4]:
-        strip_img = get_asset_url(post["id"])
-        strip_html += f"""
-        <a href="posts/post_{post["id"]}.html"
-           class="card group flex gap-4 bg-white border border-gray-100 rounded-xl p-4 items-start">
-            <div class="w-20 h-20 rounded-lg overflow-hidden shrink-0 bg-gray-100">
-                <img src="{strip_img}" alt="{post["title"]}" loading="lazy"
-                     class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300">
-            </div>
-            <div class="min-w-0">
-                <span class="text-[10px] font-black text-gray-400 uppercase tracking-widest">{post["created_at"][:10]}</span>
-                <h4 class="text-sm font-bold text-gray-900 group-hover:text-blue-600 clamp-2 leading-snug mt-1">{post["title"]}</h4>
+                <h3 class="text-lg font-bold text-white group-hover:text-brand-400 clamp-3 leading-snug mb-4 transition-colors">{{p_title}}</h3>
+                <div class="mt-auto pt-4 border-t border-neutral-800/50 flex items-center justify-between">
+                    <span class="text-xs text-neutral-400 font-semibold uppercase tracking-widest group-hover:text-white transition-colors">Access File</span>
+                    <span class="text-neutral-600 group-hover:text-brand-400 transition-colors group-hover:translate-x-1">→</span>
+                </div>
             </div>
         </a>
         """
 
     content = f"""
-    {hero_html}
+    {{hero_html}}
 
-    <!-- Section: Recent strip -->
-    <section class="mb-14 reveal">
-        <div class="flex items-center gap-4 mb-5">
-            <h2 class="text-base font-extrabold uppercase tracking-widest text-gray-500 whitespace-nowrap">Recent</h2>
-            <div class="h-px flex-grow bg-gray-100"></div>
+    <!-- Section: Archive -->
+    <section id="archive" class="mb-24 px-5 reveal">
+        <div class="flex items-center gap-6 mb-10">
+            <h2 class="text-2xl font-black tracking-tight text-white uppercase">Intelligence <span class="text-brand-500">Archive</span></h2>
+            <div class="h-px flex-grow bg-gradient-to-r from-neutral-800 to-transparent"></div>
         </div>
-        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-            {strip_html}
-        </div>
-    </section>
-
-    <!-- Section: All articles grid -->
-    <section id="archive" class="mb-16 reveal">
-        <div class="flex items-center gap-4 mb-7">
-            <h2 class="text-xl font-extrabold tracking-tight whitespace-nowrap">
-                Latest <span class="text-blue-600">Intelligence</span>
-            </h2>
-            <div class="h-px flex-grow bg-gray-100"></div>
-        </div>
-        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {cards_html}
-        </div>
-    </section>
-
-    <!-- About -->
-    <section id="about" class="bg-white rounded-2xl p-8 md:p-12 border border-gray-100 shadow-sm reveal">
-        <div class="max-w-xl">
-            <span class="badge bg-blue-50 text-blue-600 mb-4 inline-block">About RAAPPO</span>
-            <h2 class="text-2xl font-extrabold text-gray-900 mb-4 leading-tight">Global Intelligence for 2026</h2>
-            <p class="text-gray-600 leading-relaxed mb-3">RAAPPO is a decentralized, AI-augmented news platform synthesising real-time technological breakthroughs into long-form, investigative journalism — published daily.</p>
-            <p class="text-gray-500 text-sm leading-relaxed">Powered by Gemini 2.5 Flash with Google Search grounding · Supabase · Cloudflare Pages.</p>
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
+            {{cards_html}}
         </div>
     </section>
     """
 
     with open("index.html", "w", encoding="utf-8") as f:
-        f.write(render_base_template("RAAPPO — Global Intelligence 2026", content, is_home=True))
+        f.write(render_base_template("Intelligence Feed", content, is_home=True))
 
-# ─────────────────────────────────────────────
-# 8. Main Orchestrator
-# ─────────────────────────────────────────────
 def generate_article() -> None:
-    model_id  = "gemini-2.5-flash"
+    model_id  = "gemini-1.5-flash"
     target_id = get_next_available_id()
 
     prompt = """
