@@ -1,23 +1,23 @@
 name: Ghost Writer Bot
 on:
   schedule:
-    - cron: '0 0 * * *' # This runs every night at midnight.
-  workflow_dispatch: # This allows you to run it manually to test!
+    - cron: '0 0 * * *' # Every midnight
+  workflow_dispatch: 
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4 # 2026 Standard
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5 # 2026 Standard
         with:
           python-version: '3.12'
 
       - name: Install dependencies
-        run: pip install google-generativeai supabase
+        run: pip install google-genai supabase
 
       - name: Run Ghost Writer
         env:
@@ -31,5 +31,5 @@ jobs:
           git config --global user.name 'GhostBot'
           git config --global user.email 'bot@ghost.com'
           git add .
-          git commit -m "Ghost posted a new article" || exit 0
+          git commit -m "Ghost News Update - April 2026" || exit 0
           git push
