@@ -417,7 +417,7 @@ def render_base_template(title: str, content: str, is_home: bool = True) -> str:
                         </div>
                         <div class="text-[11px] text-neutral-500 uppercase tracking-wider font-mono">
                             Node: eu-central-1<br>
-                            Engine: Gemini 1.5 Flash
+                            Status: Secure
                         </div>
                     </div>
                 </div>
@@ -468,7 +468,7 @@ def render_post_page(post: dict, img_path: str) -> None:
         <nav class="mb-10 text-[11px] font-bold uppercase tracking-widest text-neutral-500 flex items-center gap-3 flex-wrap reveal">
             <a href="../index.html" class="hover:text-brand-400 transition-colors">Intelligence</a>
             <span class="text-neutral-700">/</span>
-            <span class="text-neutral-300 truncate max-w-xs">{{post_title}}</span>
+            <span class="text-neutral-300 truncate max-w-xs">{post_title}</span>
         </nav>
 
         <article class="reveal">
@@ -476,23 +476,23 @@ def render_post_page(post: dict, img_path: str) -> None:
             <header class="mb-12">
                 <div class="flex flex-wrap items-center gap-4 mb-6">
                     <span class="badge">Classified Report</span>
-                    <span class="text-neutral-400 text-xs font-mono tracking-wider">{{post_date}}</span>
+                    <span class="text-neutral-400 text-xs font-mono tracking-wider">{post_date}</span>
                 </div>
-                <h1 class="text-4xl md:text-5xl font-extrabold leading-[1.15] text-white mb-6 tracking-tight drop-shadow-sm">{{post_title}}</h1>
+                <h1 class="text-4xl md:text-5xl font-extrabold leading-[1.15] text-white mb-6 tracking-tight drop-shadow-sm">{post_title}</h1>
             </header>
 
             <!-- Hero image -->
             <figure class="mb-14 rounded-2xl overflow-hidden shadow-[0_0_40px_rgba(0,0,0,0.5)] border border-neutral-800 relative group">
                 <div class="absolute inset-0 bg-gradient-to-t from-dark-900/60 via-transparent to-transparent z-10 pointer-events-none"></div>
-                <img src="{{img_src}}"
-                     alt="{{post_title}}"
+                <img src="{img_src}"
+                     alt="{post_title}"
                      class="w-full h-auto max-h-[500px] object-cover group-hover:scale-105 transition-transform duration-1000 ease-out"
                      loading="eager">
             </figure>
 
             <!-- Body -->
             <div class="prose">
-                {{body_html}}
+                {body_html}
             </div>
 
             <!-- Footer -->
@@ -524,18 +524,18 @@ def build_homepage(all_posts: list, hero_summary: str, target_id: int) -> None:
     # ── Featured hero ──────────────────────────
     hero_html = f"""
     <section class="mb-20 px-5 reveal">
-        <div class="relative rounded-[2rem] overflow-hidden bg-dark-900 h-[450px] md:h-[550px] flex items-end shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-neutral-800 group cursor-pointer" onclick="window.location.href='posts/post_{{hero["id"]}}.html'">
-            <img src="{{hero_img}}"
-                 alt="{{hero["title"]}}"
+        <div class="relative rounded-[2rem] overflow-hidden bg-dark-900 h-[450px] md:h-[550px] flex items-end shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-neutral-800 group cursor-pointer" onclick="window.location.href='posts/post_{hero["id"]}.html'">
+            <img src="{hero_img}"
+                 alt="{hero["title"]}"
                  class="absolute inset-0 w-full h-full object-cover opacity-50 group-hover:opacity-60 group-hover:scale-[1.03] transition-all duration-1000 ease-out">
             <div class="absolute inset-0 bg-gradient-to-t from-dark-900 via-dark-900/60 to-transparent pointer-events-none"></div>
             <div class="relative z-10 p-8 md:p-14 max-w-4xl">
                 <div class="flex flex-wrap items-center gap-3 mb-5">
                     <span class="badge badge-pulse">Top Story</span>
-                    <span class="text-brand-400 text-xs font-mono tracking-wider">{{hero["created_at"][:10]}}</span>
+                    <span class="text-brand-400 text-xs font-mono tracking-wider">{hero["created_at"][:10]}</span>
                 </div>
-                <h2 class="text-3xl md:text-5xl font-extrabold text-white mb-5 leading-[1.15] tracking-tight clamp-3 drop-shadow-md">{{hero["title"]}}</h2>
-                <p class="text-neutral-300 text-base md:text-lg mb-8 leading-relaxed clamp-2 max-w-2xl drop-shadow">{{hero_summary}}</p>
+                <h2 class="text-3xl md:text-5xl font-extrabold text-white mb-5 leading-[1.15] tracking-tight clamp-3 drop-shadow-md">{hero["title"]}</h2>
+                <p class="text-neutral-300 text-base md:text-lg mb-8 leading-relaxed clamp-2 max-w-2xl drop-shadow">{hero_summary}</p>
                 <div class="inline-flex items-center gap-3 bg-white text-dark-900 px-7 py-3.5 rounded-full font-bold text-sm hover:bg-brand-400 hover:text-white transition-all duration-300 group/btn">
                     Read Intelligence Report
                     <span class="group-hover/btn:translate-x-1 transition-transform">→</span>
@@ -557,14 +557,14 @@ def build_homepage(all_posts: list, hero_summary: str, target_id: int) -> None:
         <a href="posts/post_{p_id}.html" class="card-premium group block rounded-2xl overflow-hidden flex flex-col relative h-[380px]">
             <div class="h-48 overflow-hidden relative shrink-0">
                 <div class="absolute inset-0 bg-dark-900/20 group-hover:bg-transparent transition-colors z-10"></div>
-                <img src="{{thumb}}" alt="{{p_title}}" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out">
+                <img src="{thumb}" alt="{p_title}" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out">
             </div>
             <div class="p-6 flex flex-col flex-grow bg-dark-800/30">
                 <div class="flex items-center gap-3 mb-4">
                     <span class="w-1.5 h-1.5 bg-brand-500 rounded-full"></span>
-                    <span class="text-neutral-500 text-[10px] font-mono tracking-widest">{{p_date}}</span>
+                    <span class="text-neutral-500 text-[10px] font-mono tracking-widest">{p_date}</span>
                 </div>
-                <h3 class="text-lg font-bold text-white group-hover:text-brand-400 clamp-3 leading-snug mb-4 transition-colors">{{p_title}}</h3>
+                <h3 class="text-lg font-bold text-white group-hover:text-brand-400 clamp-3 leading-snug mb-4 transition-colors">{p_title}</h3>
                 <div class="mt-auto pt-4 border-t border-neutral-800/50 flex items-center justify-between">
                     <span class="text-xs text-neutral-400 font-semibold uppercase tracking-widest group-hover:text-white transition-colors">Access File</span>
                     <span class="text-neutral-600 group-hover:text-brand-400 transition-colors group-hover:translate-x-1">→</span>
@@ -574,7 +574,7 @@ def build_homepage(all_posts: list, hero_summary: str, target_id: int) -> None:
         """
 
     content = f"""
-    {{hero_html}}
+    {hero_html}
 
     <!-- Section: Archive -->
     <section id="archive" class="mb-24 px-5 reveal">
@@ -583,7 +583,7 @@ def build_homepage(all_posts: list, hero_summary: str, target_id: int) -> None:
             <div class="h-px flex-grow bg-gradient-to-r from-neutral-800 to-transparent"></div>
         </div>
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 md:gap-8">
-            {{cards_html}}
+            {cards_html}
         </div>
     </section>
     """
