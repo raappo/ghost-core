@@ -1,10 +1,12 @@
 import os
 import time
+import re
+import requests
 from google import genai
 from google.genai import types
 from supabase import create_client
 
-# 1. Setup
+# 1. Configuration & Setup
 GEMINI_KEY = os.environ.get("GEMINI_API_KEY")
 SB_URL = os.environ.get("SUPABASE_URL")
 SB_KEY = os.environ.get("SUPABASE_KEY")
@@ -13,152 +15,212 @@ client = genai.Client(api_key=GEMINI_KEY)
 supabase = create_client(SB_URL, SB_KEY)
 
 def get_next_available_id():
-    """Custom logic to fill gaps in IDs"""
     result = supabase.table("content_farm").select("id").order("id", desc=False).execute()
     existing_ids = [row['id'] for row in result.data]
-    
     lowest_id = 1
-    while lowest_id in existing_ids:
-        lowest_id += 1
+    while lowest_id in existing_ids: lowest_id += 1
     return lowest_id
 
 def generate_article():
     model_id = 'gemini-2.5-flash'
     target_id = get_next_available_id()
     
+    # SYSTEM PROMPT: Forces high-end journalistic structure
     prompt = """
-    Act as a professional tech journalist for XDA-Developers or The Verge.
-    Topic: A major real-world tech breakthrough from today, April 29, 2026.
-    
-    Structure the response in CLEAN MARKDOWN (no HTML tags in the raw AI response).
-    Include:
-    1. A short, punchy Title.
-    2. A brief 2-sentence Summary (Subtitle).
-    3. The main article body with multiple ## Subheadings.
-    4. Use bullet points for key specs.
-    5. A 'The Bottom Line' conclusion.
-    
-    Do NOT mention AI, automation, or yourself. Make it 1000+ words.
+    Write a professional tech news article for April 29, 2026.
+    Structure:
+    - TITLE: [Catchy, non-clickbait title]
+    - CATEGORY: [Breaking, Deep Dive, or Analysis]
+    - SUMMARY: [Professional 2-sentence summary]
+    - IMAGE_PROMPT: [3 keywords for a tech image related to this topic]
+    - BODY: [1200 words of formatted markdown. Use ## for headers. Use bolding. Use lists.]
+    - CONCLUSION: [Final thoughts]
     """
 
-    # Retry Loop for 503 Errors
+    # Retry Logic for 503 Spikes
     response = None
-    for attempt in range(3):
+    for _ in range(3):
         try:
             response = client.models.generate_content(
-                model=model_id,
-                contents=prompt,
+                model=model_id, contents=prompt,
                 config=types.GenerateContentConfig(tools=[types.Tool(google_search=types.GoogleSearch())])
             )
             break
-        except Exception as e:
-            print(f"Server busy, retrying... {e}")
-            time.sleep(30)
+        except: time.sleep(20)
 
     if not response: return
 
-    # Splitting logic to handle the clean UI
-    raw_text = response.text
-    lines = raw_text.split('\n')
-    title = lines[0].replace('# ', '').strip()
-    subtitle = lines[2] if len(lines) > 2 else "Expert analysis on the latest tech shift."
-    body_markdown = "\n".join(lines[3:])
+    # Parse AI Response
+    text = response.text
+    try:
+        title = re.search(r"TITLE: (.*)", text).group(1)
+        category = re.search(r"CATEGORY: (.*)", text).group(1)
+        summary = re.search(r"SUMMARY: (.*)", text).group(1)
+        img_keywords = re.search(r"IMAGE_PROMPT: (.*)", text).group(1).replace(" ", ",")
+        body = text.split("BODY:")[1].split("CONCLUSION:")[0].strip()
+        conclusion = text.split("CONCLUSION:")[1].strip()
+    except:
+        # Fallback if AI skips a label
+        title, category, summary, img_keywords, body, conclusion = "Tech Update 2026", "Breaking", "Latest news.", "technology", text, "End of report."
 
-    # 2. Save to Database with the RECYCLED ID
-    new_post = {
+    # 2. Fetch Professional Image
+    img_url = f"https://source.unsplash.com/1600x900/?{img_keywords},tech"
+    # Note: Using unpslash source for direct hotlinking in 2026
+
+    # 3. Save to Brain (Supabase)
+    post_data = {
         "id": target_id,
-        "domain_name": "news.raappo.cf",
         "title": title,
-        "body_content": raw_text # Store raw for processing
+        "body_content": text, # Raw for future re-renders
+        "domain_name": "news.raappo.cf"
     }
-    supabase.table("content_farm").insert(new_post).execute()
+    supabase.table("content_farm").insert(post_data).execute()
 
-    # 3. Rebuild the Entire Multi-page Site
+    # 4. SITE BUILDER ENGINE
     all_posts = supabase.table("content_farm").select("*").order("created_at", desc=True).execute().data
     if not os.path.exists('posts'): os.makedirs('posts')
 
-    # Build Index Grid
-    post_cards_html = ""
+    # Build Article Library (Grid HTML)
+    grid_html = ""
     for post in all_posts:
-        # Use a random tech image based on title
-        img_url = f"https://images.unsplash.com/photo-1518770660439-4636190af475?auto=format&fit=crop&w=800&q=80"
-        file_name = f"post_{post['id']}.html"
-        post_cards_html += f"""
-        <div class="flex flex-col bg-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-lg transition">
-            <img src="{img_url}" class="h-48 w-full object-cover">
-            <div class="p-5">
-                <p class="text-blue-600 text-xs font-bold uppercase tracking-tighter mb-2">Editor's Choice</p>
-                <h3 class="text-xl font-bold mb-2 hover:text-blue-600"><a href="posts/{file_name}">{post['title']}</a></h3>
-                <p class="text-gray-500 text-sm line-clamp-2">Leading global insights for the year 2026.</p>
+        p_id = post['id']
+        p_title = post['title']
+        p_date = post['created_at'][:10]
+        grid_html += f"""
+        <a href="posts/post_{p_id}.html" class="group block bg-white border border-gray-100 rounded-2xl overflow-hidden hover:border-blue-500 transition-all duration-300">
+            <div class="aspect-video bg-gray-100 overflow-hidden">
+                <img src="https://source.unsplash.com/800x450/?tech,code,{p_id}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500">
+            </div>
+            <div class="p-6">
+                <div class="flex items-center gap-3 mb-3">
+                    <span class="px-2 py-1 bg-blue-50 text-blue-600 text-[10px] font-bold uppercase rounded">Breaking</span>
+                    <span class="text-gray-400 text-[10px] font-medium">{p_date}</span>
+                </div>
+                <h3 class="text-lg font-bold text-gray-900 group-hover:text-blue-600 line-clamp-2">{p_title}</h3>
+            </div>
+        </a>
+        """
+
+    # Generate Individual Post Pages
+    for post in all_posts:
+        render_post_page(post, img_url if post['id'] == target_id else f"https://source.unsplash.com/1600x900/?tech,{post['id']}")
+
+    # Generate Main Homepage
+    hero = all_posts[0]
+    homepage_html = f"""
+    <div class="mb-20">
+        <div class="relative rounded-[2rem] overflow-hidden bg-slate-900 min-h-[500px] flex items-center">
+            <img src="{img_url}" class="absolute inset-0 w-full h-full object-cover opacity-50">
+            <div class="relative z-10 p-8 md:p-20 max-w-4xl">
+                <span class="inline-block px-4 py-1.5 bg-blue-600 text-white text-xs font-black uppercase tracking-widest rounded-full mb-6">Featured Headline</span>
+                <h1 class="text-4xl md:text-7xl font-black text-white mb-8 leading-[1.1]">{hero['title']}</h1>
+                <p class="text-xl text-gray-200 mb-10 line-clamp-2">{summary}</p>
+                <a href="posts/post_{hero['id']}.html" class="inline-flex items-center gap-3 bg-white text-black px-8 py-4 rounded-full font-bold hover:bg-blue-600 hover:text-white transition-all group">
+                    Explore Report
+                    <span class="group-hover:translate-x-1 transition-transform">→</span>
+                </a>
             </div>
         </div>
-        """
-        # Generate Individual Page
-        with open(f"posts/{file_name}", "w", encoding="utf-8") as f:
-            f.write(render_template(post['title'], post['body_content'], is_home=False))
-
-    # Build Home Page
-    hero = all_posts[0]
-    hero_html = f"""
-    <div class="grid lg:grid-cols-2 gap-0 bg-black text-white rounded-3xl overflow-hidden mb-16">
-        <img src="https://images.unsplash.com/photo-1451187580459-43490279c0fa?auto=format&fit=crop&w=1200&q=80" class="h-full w-full object-cover opacity-80">
-        <div class="p-12 flex flex-col justify-center">
-            <span class="text-blue-400 font-bold tracking-widest text-sm mb-4">LATEST BREAKING</span>
-            <h1 class="text-4xl md:text-5xl font-black mb-6 leading-tight">{hero['title']}</h1>
-            <a href="posts/post_{hero['id']}.html" class="bg-blue-600 w-fit px-8 py-3 rounded-md font-bold hover:bg-blue-700 transition">Read Full Coverage</a>
-        </div>
+    </div>
+    <div class="flex items-center justify-between mb-10">
+        <h2 class="text-3xl font-black tracking-tight">Recent <span class="text-blue-600">Intelligence</span></h2>
+        <div class="h-[1px] flex-grow mx-8 bg-gray-100"></div>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
+        {grid_html}
     </div>
     """
     
     with open("index.html", "w", encoding="utf-8") as f:
-        f.write(render_template("Raappo | Tech News & Analysis", hero_html + f'<div class="grid md:grid-cols-3 gap-8">{post_cards_html}</div>', is_home=True))
+        f.write(render_base_template(title, homepage_html, is_home=True))
 
-def render_template(title, content, is_home=True):
-    path = "" if is_home else "../"
-    # Basic Markdown to HTML conversion for sections
-    styled_content = content.replace("## ", '<h2 class="text-2xl font-bold mt-10 mb-4 text-slate-800">').replace("\n\n", "</p><p class='mb-6 leading-relaxed'>")
+def render_post_page(post, img_url):
+    # Process the body into beautiful HTML
+    body_html = post['body_content'].replace("## ", '<h2 class="text-3xl font-bold mt-12 mb-6 text-gray-900">').replace("\n\n", "</p><p class='mb-6 text-gray-600 text-lg leading-relaxed'>")
     
+    content = f"""
+    <article class="max-w-4xl mx-auto">
+        <header class="mb-12 text-center">
+            <div class="flex justify-center gap-4 mb-6">
+                <span class="text-blue-600 font-bold uppercase tracking-widest text-xs">Technical Analysis</span>
+                <span class="text-gray-300">•</span>
+                <span class="text-gray-500 font-medium text-xs">{post['created_at'][:10]}</span>
+            </div>
+            <h1 class="text-4xl md:text-6xl font-black leading-tight mb-8">{post['title']}</h1>
+        </header>
+        <img src="{img_url}" class="w-full aspect-video object-cover rounded-3xl mb-16 shadow-2xl">
+        <div class="prose prose-slate max-w-none">
+            {body_html}
+        </div>
+    </article>
+    """
+    with open(f"posts/post_{post['id']}.html", "w", encoding="utf-8") as f:
+        f.write(render_base_template(post['title'], content, is_home=False))
+
+def render_base_template(title, content, is_home=True):
+    root = "" if is_home else "../"
     return f"""
     <!DOCTYPE html>
     <html lang="en">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>{title}</title>
+        <title>{title} | RAAPPO</title>
         <script src="https://cdn.tailwindcss.com"></script>
-        <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;700;900&display=swap" rel="stylesheet">
-        <style>body {{ font-family: 'Archivo', sans-serif; }}</style>
+        <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;700;800&display=swap" rel="stylesheet">
+        <style>
+            body {{ font-family: 'Plus Jakarta Sans', sans-serif; scroll-behavior: smooth; }}
+            .line-clamp-2 {{ display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }}
+        </style>
     </head>
-    <body class="bg-white text-slate-900">
-        <nav class="border-b border-gray-100 h-20 flex items-center sticky top-0 bg-white/95 backdrop-blur-sm z-50">
-            <div class="max-w-7xl mx-auto px-6 w-full flex items-center justify-between">
-                <div class="flex items-center space-x-10">
-                    <a href="{path}index.html" class="text-2xl font-black italic tracking-tighter">RAAPPO<span class="text-blue-600">.</span></a>
-                    <div class="hidden md:flex space-x-6 text-[11px] font-black uppercase tracking-widest text-slate-400">
-                        <a href="{path}index.html" class="hover:text-blue-600 transition">Mobile</a>
-                        <a href="{path}index.html" class="hover:text-blue-600 transition">Computing</a>
-                        <a href="{path}index.html" class="hover:text-blue-600 transition">Devs</a>
-                    </div>
+    <body class="bg-[#fafafa] text-[#1a1a1a]">
+        <nav class="sticky top-0 z-[100] bg-white/80 backdrop-blur-xl border-b border-gray-100">
+            <div class="max-w-7xl mx-auto px-6 h-24 flex items-center justify-between">
+                <a href="{root}index.html" class="text-3xl font-extrabold tracking-tighter hover:text-blue-600 transition">RAAPPO<span class="text-blue-600">.</span></a>
+                <div class="hidden lg:flex items-center gap-10">
+                    <a href="{root}index.html" class="text-xs font-black uppercase tracking-[0.2em] text-gray-400 hover:text-blue-600 transition">Trending</a>
+                    <a href="{root}index.html" class="text-xs font-black uppercase tracking-[0.2em] text-gray-400 hover:text-blue-600 transition">Reports</a>
+                    <a href="{root}index.html" class="text-xs font-black uppercase tracking-[0.2em] text-gray-400 hover:text-blue-600 transition">The Archive</a>
                 </div>
-                <div class="flex items-center space-x-4">
-                    <div class="h-8 w-8 bg-slate-100 rounded-full flex items-center justify-center cursor-pointer hover:bg-slate-200">🔍</div>
+                <div class="flex items-center gap-6">
+                    <span class="hidden md:block text-[10px] font-bold text-gray-400 bg-gray-100 px-3 py-1 rounded-full uppercase tracking-widest">LIVE 2026 FEED</span>
+                    <button class="w-10 h-10 flex items-center justify-center bg-black text-white rounded-full hover:bg-blue-600 transition">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+                    </button>
                 </div>
             </div>
         </nav>
-        <main class="max-w-7xl mx-auto px-6 py-12">
-            {styled_content}
+        <main class="max-w-7xl mx-auto px-6 py-16">
+            {content}
         </main>
-        <footer class="bg-slate-50 border-t border-gray-100 py-16 mt-20">
-            <div class="max-w-7xl mx-auto px-6 grid md:grid-cols-4 gap-12">
-                <div class="col-span-2">
-                    <a href="{path}index.html" class="text-xl font-black italic">RAAPPO.</a>
-                    <p class="text-slate-400 text-sm mt-4 max-w-sm">The world's leading authority on 2026 technological advancements and analysis.</p>
+        <footer class="bg-white border-t border-gray-100 pt-24 pb-12">
+            <div class="max-w-7xl mx-auto px-6">
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-16 mb-20">
+                    <div class="col-span-2">
+                        <div class="text-3xl font-black tracking-tighter mb-6">RAAPPO<span class="text-blue-600">.</span></div>
+                        <p class="text-gray-500 text-lg leading-relaxed max-w-md">Decentralized autonomous news network delivering 2026's most vital technological intelligence.</p>
+                    </div>
+                    <div>
+                        <h4 class="font-bold uppercase tracking-widest text-xs text-gray-400 mb-6">Navigation</h4>
+                        <ul class="space-y-4 font-bold text-sm">
+                            <li><a href="{root}index.html" class="hover:text-blue-600 transition">Front Page</a></li>
+                            <li><a href="{root}index.html" class="hover:text-blue-600 transition">Latest Trends</a></li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="font-bold uppercase tracking-widest text-xs text-gray-400 mb-6">System Status</h4>
+                        <div class="flex items-center gap-2 text-green-500 text-xs font-black uppercase">
+                            <span class="w-2 h-2 bg-green-500 rounded-full animate-pulse"></span>
+                            Operational
+                        </div>
+                    </div>
                 </div>
-                <div>
-                    <h4 class="font-bold mb-4">Resources</h4>
-                    <ul class="text-slate-400 text-sm space-y-2"><li>Newsletter</li><li>Contact</li><li>Privacy</li></ul>
+                <div class="border-t border-gray-100 pt-12 flex flex-col md:flex-row justify-between items-center gap-6">
+                    <p class="text-gray-400 text-xs font-medium">© 2026 RAAPPO GLOBAL. ALL DATA SECURED VIA SUPABASE.</p>
+                    <div class="flex gap-8 text-xs font-black uppercase tracking-widest text-gray-400">
+                        <a href="#">Privacy</a><a href="#">Terms</a><a href="#">RSS</a>
+                    </div>
                 </div>
-                <p class="text-slate-300 text-xs mt-10">© 2026 RAAPPO Media. All rights reserved.</p>
             </div>
         </footer>
     </body>
