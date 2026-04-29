@@ -286,7 +286,7 @@ def render_base_template(title: str, content: str, is_home: bool = True) -> str:
         }}
 
         /* Typography tweaks */
-        .prose {{ font-family: "Lora", serif; font-size: 1.15rem; line-height: 1.9; color: #d4d4d8; }}
+        .prose {{ font-family: "Lora", serif; font-size: 1.15rem; line-height: 1.9; color: #f3f4f6; }}
         .prose p {{ margin-bottom: 2rem; }}
         .prose h2 {{ font-family: "Plus Jakarta Sans", sans-serif; font-size: 1.8rem; font-weight: 800; color: #ffffff; margin-top: 4rem; margin-bottom: 1.5rem; letter-spacing: -0.02em; border-bottom: 1px solid #262626; padding-bottom: 0.5rem; }}
         .prose h3 {{ font-family: "Plus Jakarta Sans", sans-serif; font-size: 1.4rem; font-weight: 700; color: #f4f4f5; margin-top: 3rem; margin-bottom: 1rem; }}
@@ -334,10 +334,6 @@ def render_base_template(title: str, content: str, is_home: bool = True) -> str:
             70% {{ opacity: 0.5; box-shadow: 0 0 0 4px rgba(56,189,248, 0); }}
             100% {{ opacity: 1; box-shadow: 0 0 0 0 rgba(56,189,248, 0); }}
         }}
-
-        /* Reveal Animation */
-        .reveal {{ opacity: 0; transform: translateY(20px); transition: opacity 0.8s ease-out, transform 0.8s ease-out; }}
-        .reveal.visible {{ opacity: 1; transform: translateY(0); }}
 
         #progress-bar {{
             position: fixed; top: 0; left: 0; height: 2px;
@@ -441,13 +437,6 @@ def render_base_template(title: str, content: str, is_home: bool = True) -> str:
             const pct = (doc.scrollTop / (doc.scrollHeight - doc.clientHeight)) * 100;
             if (el) el.style.width = pct + "%";
         }});
-
-        // Reveal on scroll
-        const revealEls = document.querySelectorAll(".reveal");
-        const obs = new IntersectionObserver((entries) => {{
-            entries.forEach(e => {{ if (e.isIntersecting) e.target.classList.add("visible"); }});
-        }}, {{ threshold: 0.1 }});
-        revealEls.forEach(el => obs.observe(el));
     </script>
 </body>
 </html>"""
@@ -465,13 +454,13 @@ def render_post_page(post: dict, img_path: str) -> None:
     content = f"""
     <div class="max-w-3xl mx-auto px-5">
         <!-- Breadcrumb -->
-        <nav class="mb-10 text-[11px] font-bold uppercase tracking-widest text-neutral-500 flex items-center gap-3 flex-wrap reveal">
+        <nav class="mb-10 text-[11px] font-bold uppercase tracking-widest text-neutral-500 flex items-center gap-3 flex-wrap">
             <a href="../index.html" class="hover:text-brand-400 transition-colors">Intelligence</a>
             <span class="text-neutral-700">/</span>
             <span class="text-neutral-300 truncate max-w-xs">{post_title}</span>
         </nav>
 
-        <article class="reveal">
+        <article>
             <!-- Header -->
             <header class="mb-12">
                 <div class="flex flex-wrap items-center gap-4 mb-6">
@@ -523,7 +512,7 @@ def build_homepage(all_posts: list, hero_summary: str, target_id: int) -> None:
 
     # ── Featured hero ──────────────────────────
     hero_html = f"""
-    <section class="mb-20 px-5 reveal">
+    <section class="mb-20 px-5">
         <div class="relative rounded-[2rem] overflow-hidden bg-dark-900 h-[450px] md:h-[550px] flex items-end shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-neutral-800 group cursor-pointer" onclick="window.location.href='posts/post_{hero["id"]}.html'">
             <img src="{hero_img}"
                  alt="{hero["title"]}"
@@ -577,7 +566,7 @@ def build_homepage(all_posts: list, hero_summary: str, target_id: int) -> None:
     {hero_html}
 
     <!-- Section: Archive -->
-    <section id="archive" class="mb-24 px-5 reveal">
+    <section id="archive" class="mb-24 px-5">
         <div class="flex items-center gap-6 mb-10">
             <h2 class="text-2xl font-black tracking-tight text-white uppercase">Intelligence <span class="text-brand-500">Archive</span></h2>
             <div class="h-px flex-grow bg-gradient-to-r from-neutral-800 to-transparent"></div>
@@ -653,7 +642,7 @@ CONCLUSION:
 """
 
     response = None
-    models_to_try = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash"]
+    models_to_try = ["gemini-2.5-flash", "gemini-flash-latest", "gemini-2.0-flash", "gemini-2.0-flash-lite-001", "gemini-1.5-flash"]
     
     for model_id in models_to_try:
         print(f"Trying generation with model: {model_id}")
