@@ -12,15 +12,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4 # 2026 Standard
+        uses: actions/checkout@v4 
 
       - name: Set up Python
-        uses: actions/setup-python@v5 # 2026 Standard
+        uses: actions/setup-python@v5 
         with:
           python-version: '3.12'
 
       - name: Install dependencies
-        run: pip install google-genai supabase
+        run: pip install google-genai supabase requests
 
       - name: Run Ghost Writer
         env:
@@ -33,6 +33,7 @@ jobs:
         run: |
           git config --global user.name 'GhostBot'
           git config --global user.email 'bot@ghost.com'
+          git add assets/ 
           git add .
-          git commit -m "Ghost News Update - April 2026" || exit 0
+          git commit -m "Intelligence Update - Local Assets April 2026" || exit 0
           git push
