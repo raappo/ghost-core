@@ -1,21 +1,23 @@
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
-  
+
 name: Ghost Writer Bot
+
 on:
   schedule:
-    - cron: '0 0 * * *' # Every midnight
-  workflow_dispatch: 
+    - cron: '0 0 * * *'   # Every midnight UTC
+  workflow_dispatch:        # Allow manual trigger
 
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4 
+        uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v5 
+        uses: actions/setup-python@v5
         with:
           python-version: '3.12'
 
@@ -25,15 +27,17 @@ jobs:
       - name: Run Ghost Writer
         env:
           GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
-          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
-          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+          SUPABASE_URL:   ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY:   ${{ secrets.SUPABASE_KEY }}
         run: python ghost_writer.py
 
-      - name: Commit and Push changes
+      - name: Commit and push changes
         run: |
-          git config --global user.name 'GhostBot'
-          git config --global user.email 'bot@ghost.com'
-          git add assets/ 
+          git config --global user.name  'GhostBot'
+          git config --global user.email 'bot@raappo.cf'
+          git add assets/
+          git add posts/
+          git add index.html
           git add .
-          git commit -m "Intelligence Update - Local Assets April 2026" || exit 0
+          git commit -m "Intelligence Update — $(date +'%Y-%m-%d')" || exit 0
           git push
