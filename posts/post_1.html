@@ -1,184 +1,284 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SpectraGen Unveils ChromaFlux: The Display Technology That Changes Everything | RAAPPO</title>
-    <meta name="description" content="RAAPPO — Decentralized autonomous tech intelligence for 2026.">
+    <title>SpectraGen Unveils ChromaFlux: The Display Technology That Changes Everything | RAAPPO Global Intelligence</title>
+    <meta name="description" content="RAAPPO Global Intelligence — Daily technology briefings on 2026's most consequential breakthroughs.">
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              brand: {
+                400: '#38bdf8',
+                500: '#0ea5e9',
+                600: '#0284c7',
+              },
+              dark: {
+                900: '#0a0a0a',
+                800: '#171717',
+                700: '#262626',
+              }
+            },
+            fontFamily: {
+              sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+              serif: ['"Lora"', 'serif'],
+              mono: ['"Fira Code"', 'monospace'],
+            }
+          }
+        }
+      }
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=Lora:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; scroll-behavior: smooth; }
-        .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-        .line-clamp-3 { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
-        .article-content { font-family: 'Lora', Georgia, serif; color: #374151; }
-        .article-content p  { font-size: 1.125rem; line-height: 1.85; margin-bottom: 1.5rem; color: #374151; }
-        .article-content h2 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.75rem; font-weight: 800; color: #111827; margin-top: 3rem; margin-bottom: 1.25rem; padding-bottom: 0.5rem; border-bottom: 2px solid #f3f4f6; }
-        .article-content h3 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.375rem; font-weight: 700; color: #1f2937; margin-top: 2.25rem; margin-bottom: 1rem; }
-        .article-content h4 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.125rem; font-weight: 700; color: #374151; margin-top: 1.75rem; margin-bottom: 0.75rem; }
-        .article-content ul { list-style: disc; padding-left: 1.75rem; margin-bottom: 1.5rem; }
-        .article-content ol { list-style: decimal; padding-left: 1.75rem; margin-bottom: 1.5rem; }
-        .article-content li { font-size: 1.05rem; line-height: 1.8; margin-bottom: 0.5rem; color: #374151; }
-        .article-content strong { font-weight: 700; color: #111827; font-family: 'Plus Jakarta Sans', sans-serif; }
-        .article-content em  { font-style: italic; }
-        .article-content code { background: #f1f5f9; color: #2563eb; padding: 0.125rem 0.375rem; border-radius: 0.25rem; font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', 'Monaco', 'Courier New', monospace; font-size: 0.9em; }
-        .article-content blockquote { border-left: 4px solid #3b82f6; padding-left: 1.25rem; margin: 2rem 0; font-style: italic; color: #6b7280; }
-        #mobile-menu { display: none; }
-        #mobile-menu.open { display: block; }
+        body {
+            background-color: #0a0a0a;
+            color: #e5e5e5;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+        
+        ::selection { background: rgba(14, 165, 233, 0.3); color: #fff; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0a0a0a; }
+        ::-webkit-scrollbar-thumb { background: #262626; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #404040; }
+
+        /* Background Glow Orb */
+        .glow-orb {
+            position: absolute;
+            top: -200px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 800px;
+            height: 400px;
+            background: radial-gradient(ellipse at center, rgba(14,165,233,0.15) 0%, rgba(10,10,10,0) 70%);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .clamp-3 { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+
+        /* Glass Nav */
+        .glass-nav {
+            background: rgba(10, 10, 10, 0.65);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        /* Typography tweaks */
+        .prose { font-family: "Lora", serif; font-size: 1.15rem; line-height: 1.9; color: #d4d4d8; }
+        .prose p { margin-bottom: 2rem; }
+        .prose h2 { font-family: "Plus Jakarta Sans", sans-serif; font-size: 1.8rem; font-weight: 800; color: #ffffff; margin-top: 4rem; margin-bottom: 1.5rem; letter-spacing: -0.02em; border-bottom: 1px solid #262626; padding-bottom: 0.5rem; }
+        .prose h3 { font-family: "Plus Jakarta Sans", sans-serif; font-size: 1.4rem; font-weight: 700; color: #f4f4f5; margin-top: 3rem; margin-bottom: 1rem; }
+        .prose h4 { font-family: "Plus Jakarta Sans", sans-serif; font-size: 1.2rem; font-weight: 700; color: #f4f4f5; margin-top: 2rem; margin-bottom: 0.75rem; }
+        .prose ul, .prose ol { margin-bottom: 2rem; padding-left: 1.5rem; }
+        .prose li { margin-bottom: 0.75rem; }
+        .prose strong { color: #ffffff; font-weight: 600; font-family: "Plus Jakarta Sans", sans-serif; }
+        .prose a { color: #38bdf8; text-decoration: none; border-bottom: 1px solid rgba(56,189,248,0.3); transition: border-color 0.2s; }
+        .prose a:hover { border-color: rgba(56,189,248,1); }
+        .prose blockquote { border-left: 3px solid #0ea5e9; padding: 1rem 1.5rem; font-style: italic; color: #a1a1aa; margin: 2.5rem 0; background: #171717; border-radius: 0 0.5rem 0.5rem 0; }
+        .prose code { background: #171717; color: #38bdf8; padding: 0.2rem 0.4rem; border-radius: 0.25rem; font-family: "Fira Code", monospace; font-size: 0.85em; border: 1px solid #262626; }
+
+        /* Premium Cards */
+        .card-premium {
+            background: rgba(23, 23, 23, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .card-premium:hover {
+            transform: translateY(-4px);
+            background: rgba(23, 23, 23, 0.8);
+            border-color: rgba(14, 165, 233, 0.3);
+            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.5), 0 0 20px rgba(14, 165, 233, 0.1);
+        }
+
+        /* Badges */
+        .badge {
+            font-size: 0.7rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+            padding: 0.25rem 0.75rem; border-radius: 999px;
+            background: rgba(14, 165, 233, 0.1);
+            color: #38bdf8;
+            border: 1px solid rgba(14, 165, 233, 0.2);
+            display: inline-flex; align-items: center; gap: 0.3rem;
+        }
+        .badge-pulse { position: relative; padding-left: 1.75rem; }
+        .badge-pulse::before {
+            content: ''; position: absolute; left: 0.6rem; top: 50%; transform: translateY(-50%);
+            width: 6px; height: 6px; border-radius: 50%; background: #38bdf8;
+            box-shadow: 0 0 8px #38bdf8; animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; box-shadow: 0 0 0 0 rgba(56,189,248, 0.4); }
+            70% { opacity: 0.5; box-shadow: 0 0 0 4px rgba(56,189,248, 0); }
+            100% { opacity: 1; box-shadow: 0 0 0 0 rgba(56,189,248, 0); }
+        }
+
+        /* Reveal Animation */
+        .reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.8s ease-out, transform 0.8s ease-out; }
+        .reveal.visible { opacity: 1; transform: translateY(0); }
+
+        #progress-bar {
+            position: fixed; top: 0; left: 0; height: 2px;
+            background: #0ea5e9;
+            box-shadow: 0 0 10px #0ea5e9;
+            width: 0%; z-index: 200; transition: width 0.1s;
+        }
     </style>
 </head>
-<body class="bg-[#f8f9fa] text-[#1a1a1a]">
-    <nav class="sticky top-0 z-[100] bg-white/90 backdrop-blur-xl border-b border-gray-100 shadow-sm">
-        <div class="max-w-7xl mx-auto px-5 h-20 flex items-center justify-between gap-4">
-            <a href="../index.html" class="text-2xl font-extrabold tracking-tighter hover:text-blue-600 transition shrink-0">RAAPPO<span class="text-blue-600">.</span></a>
-            <div class="hidden lg:flex items-center gap-8">
-                <a href="../index.html" class="text-[11px] font-black uppercase tracking-[0.18em] text-gray-500 hover:text-blue-600 transition">Home</a>
-                <a href="../index.html#trending" class="text-[11px] font-black uppercase tracking-[0.18em] text-gray-500 hover:text-blue-600 transition">Trending</a>
-                <a href="../index.html#archive" class="text-[11px] font-black uppercase tracking-[0.18em] text-gray-500 hover:text-blue-600 transition">Archive</a>
-                <a href="../index.html#about" class="text-[11px] font-black uppercase tracking-[0.18em] text-gray-500 hover:text-blue-600 transition">About</a>
+<body class="antialiased relative">
+    <div class="glow-orb"></div>
+    <div id="progress-bar"></div>
+
+    <!-- ── Navbar ── -->
+    <nav class="sticky top-0 z-[100] glass-nav transition-all duration-300" id="navbar">
+        <div class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+            <a href="../index.html" class="flex items-center gap-3 group">
+                <div class="w-8 h-8 rounded bg-gradient-to-br from-brand-400 to-brand-600 flex items-center justify-center shadow-[0_0_15px_rgba(14,165,233,0.3)] group-hover:shadow-[0_0_20px_rgba(14,165,233,0.5)] transition-all duration-300">
+                    <span class="text-white text-sm font-black tracking-tighter">R</span>
+                </div>
+                <span class="text-lg font-extrabold tracking-tight text-white group-hover:text-brand-400 transition-colors">RAAPPO<span class="text-brand-500">.</span></span>
+            </a>
+
+            <div class="hidden md:flex items-center gap-8">
+                <a href="../index.html"           class="text-[11px] font-bold uppercase tracking-[0.2em] text-neutral-400 hover:text-white transition-colors">Intelligence</a>
+                <a href="../index.html#archive"   class="text-[11px] font-bold uppercase tracking-[0.2em] text-neutral-400 hover:text-white transition-colors">Archive</a>
             </div>
-            <div class="flex items-center gap-3">
-                <span class="hidden md:inline-flex text-[10px] font-bold text-emerald-600 bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-full uppercase tracking-widest items-center gap-1.5">
-                    <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span> Live 2026
-                </span>
-                <button id="hamburger-btn" class="lg:hidden w-10 h-10 flex flex-col items-center justify-center gap-[5px] rounded-xl border border-gray-200 hover:bg-gray-50 transition" aria-label="Open menu" onclick="document.getElementById('mobile-menu').classList.toggle('open')">
-                    <span class="w-5 h-[2px] bg-gray-700 rounded-full"></span>
-                    <span class="w-5 h-[2px] bg-gray-700 rounded-full"></span>
-                    <span class="w-5 h-[2px] bg-gray-700 rounded-full"></span>
+
+            <div class="flex items-center gap-4">
+                <span class="hidden sm:inline-flex badge badge-pulse">Live 2026</span>
+                <button id="hamburger-btn" class="md:hidden text-neutral-300 hover:text-white" aria-label="Open menu" onclick="document.getElementById('mobile-menu').classList.toggle('hidden')">
+                    <span class="block w-5 h-[2px] bg-white mb-1"></span>
+                    <span class="block w-5 h-[2px] bg-white mb-1"></span>
+                    <span class="block w-5 h-[2px] bg-white"></span>
                 </button>
             </div>
         </div>
-        <div id="mobile-menu" class="lg:hidden bg-white border-t border-gray-100 px-5 py-4">
-            <ul class="flex flex-col gap-1">
-                <li><a href="../index.html" class="flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-bold text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition">🏠 Home</a></li>
-                <li><a href="../index.html#trending" class="flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-bold text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition">🔥 Trending</a></li>
-                <li><a href="../index.html#archive" class="flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-bold text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition">📚 Archive</a></li>
-                <li><a href="../index.html#about" class="flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-bold text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition">ℹ️ About</a></li>
+        <div id="mobile-menu" class="hidden md:hidden bg-dark-900 border-b border-neutral-800 px-6 py-4 absolute w-full">
+            <ul class="flex flex-col gap-4">
+                <li><a href="../index.html" class="text-sm font-bold uppercase tracking-widest text-neutral-300 hover:text-brand-400">Intelligence</a></li>
+                <li><a href="../index.html#archive" class="text-sm font-bold uppercase tracking-widest text-neutral-300 hover:text-brand-400">Archive</a></li>
             </ul>
         </div>
     </nav>
-    <main class="max-w-7xl mx-auto px-5 py-12">
+
+    <!-- ── Page content ── -->
+    <main class="relative z-10 pt-10 pb-20">
         
-    <div class="max-w-4xl mx-auto">
-        <nav class="mb-10 text-sm font-medium text-gray-500 flex items-center gap-2">
-            <a href="../index.html" class="hover:text-blue-600 transition">Home</a>
-            <span class="text-gray-300">/</span>
-            <span class="text-gray-800 truncate max-w-xs">SpectraGen Unveils ChromaFlux: The Display Technology That Changes Everything</span>
+    <div class="max-w-3xl mx-auto px-5">
+        <!-- Breadcrumb -->
+        <nav class="mb-10 text-[11px] font-bold uppercase tracking-widest text-neutral-500 flex items-center gap-3 flex-wrap reveal">
+            <a href="../index.html" class="hover:text-brand-400 transition-colors">Intelligence</a>
+            <span class="text-neutral-700">/</span>
+            <span class="text-neutral-300 truncate max-w-xs">{post_title}</span>
         </nav>
-        <article>
-            <header class="mb-10">
-                <div class="flex items-center gap-3 mb-5">
-                    <span class="px-3 py-1 bg-blue-600 text-white text-xs font-bold uppercase tracking-widest rounded-full">Technical Analysis</span>
-                    <span class="text-gray-400 text-sm">2026-04-29</span>
-                    <span class="text-gray-300">·</span>
-                    <span class="text-gray-400 text-sm">5 min read</span>
+
+        <article class="reveal">
+            <!-- Header -->
+            <header class="mb-12">
+                <div class="flex flex-wrap items-center gap-4 mb-6">
+                    <span class="badge">Classified Report</span>
+                    <span class="text-neutral-400 text-xs font-mono tracking-wider">{post_date}</span>
                 </div>
-                <h1 class="text-4xl md:text-5xl font-black leading-tight text-gray-900 mb-6">SpectraGen Unveils ChromaFlux: The Display Technology That Changes Everything</h1>
+                <h1 class="text-4xl md:text-5xl font-extrabold leading-[1.15] text-white mb-6 tracking-tight drop-shadow-sm">{post_title}</h1>
             </header>
-            <figure class="mb-12">
-                <img src="https://picsum.photos/seed/raappopost1/1600/900" alt="SpectraGen Unveils ChromaFlux: The Display Technology That Changes Everything" class="w-full aspect-video object-cover rounded-2xl shadow-xl">
+
+            <!-- Hero image -->
+            <figure class="mb-14 rounded-2xl overflow-hidden shadow-[0_0_40px_rgba(0,0,0,0.5)] border border-neutral-800 relative group">
+                <div class="absolute inset-0 bg-gradient-to-t from-dark-900/60 via-transparent to-transparent z-10 pointer-events-none"></div>
+                <img src="{img_src}"
+                     alt="{post_title}"
+                     class="w-full h-auto max-h-[500px] object-cover group-hover:scale-105 transition-transform duration-1000 ease-out"
+                     loading="eager">
             </figure>
-            <div class="article-content">
-                <h2 class="text-3xl font-bold mt-12 mb-6 text-gray-900 border-b border-gray-100 pb-3">SpectraGen Unveils ChromaFlux: The Display Technology That Changes Everything</h2>
-<h2 class="text-3xl font-bold mt-12 mb-6 text-gray-900 border-b border-gray-100 pb-3">Pixel-Perfect Reality Arrives Today. A new era of visual fidelity, energy efficiency, and limitless form factors dawns with the revolutionary ChromaFlux display.</h2>
-<p class="mb-6 text-gray-700 text-lg leading-relaxed">For decades, the quest for the perfect display has been a relentless pursuit of engineers and scientists. We’ve seen incredible leaps, from the vibrant hues of OLEDs to the astonishing brightness of MicroLEDs, each pushing the boundaries of what's possible on our screens. Yet, inherent limitations have always kept the "holy grail" of display technology just out of reach – until today. On April 29, 2026, SpectraGen Innovations, a company operating largely in stealth until now, pulled back the curtain on ChromaFlux, a groundbreaking emissive display technology poised to redefine how we perceive digital content and interact with our devices across every facet of our lives.</p>
-<h2 class="text-3xl font-bold mt-12 mb-6 text-gray-900 border-b border-gray-100 pb-3">The Dawn of ChromaFlux: A Paradigm Shift in Emissive Technology</h2>
-<p class="mb-6 text-gray-700 text-lg leading-relaxed">Current display technologies, whether OLED or MicroLED, each grapple with a unique set of compromises. OLED, beloved for its infinite contrast and perfect blacks, can suffer from lower peak brightness, susceptibility to burn-in with static content, and a shorter lifespan for its organic compounds, particularly blue pixels. MicroLED, while promising exceptional brightness, longevity, and energy efficiency at high luminance, remains incredibly expensive to produce at scale for consumer devices, especially at smaller resolutions. LCDs, despite their cost-effectiveness and good brightness, are fundamentally limited by their need for a backlight, preventing true black levels and often leading to uniformity issues.</p>
-<p class="mb-6 text-gray-700 text-lg leading-relaxed">ChromaFlux shatters these limitations by introducing a completely novel approach to light emission. SpectraGen's engineers have harnessed a proprietary, inorganic quantum-enhanced emissive layer that achieves self-luminescence at a molecular level, allowing for unprecedented control over every single pixel. Unlike OLEDs, which rely on organic materials that degrade over time, ChromaFlux utilizes inorganic compounds, promising a lifespan that rivals, or even exceeds, that of traditional inorganic LEDs.</p>
-<h2 class="text-3xl font-bold mt-12 mb-6 text-gray-900 border-b border-gray-100 pb-3">How It Works: Harnessing Molecular-Level Light Control</h2>
-<p class="mb-6 text-gray-700 text-lg leading-relaxed">At its core, ChromaFlux operates on a principle of direct electrical excitation of specially engineered quantum emitters. These aren't merely quantum dots acting as color converters for a blue light source, as seen in some QD-OLED or QLED technologies. Instead, each sub-pixel in a ChromaFlux display is an independently addressable, self-emissive quantum-based structure. When an electrical current is applied, these structures emit light directly in pure red, green, or blue wavelengths with incredible precision and efficiency.</p>
-<p class="mb-6 text-gray-700 text-lg leading-relaxed">The breakthrough lies in the unique molecular architecture and fabrication process developed by SpectraGen. This allows for the creation of incredibly tiny, stable, and highly efficient emissive elements that can be patterned with extreme density. The result is a display where each pixel is not just "off" or "on" but can precisely control its luminosity and color output across an unimaginably wide spectrum, without any light leakage or crosstalk between adjacent pixels. This granular control is what unlocks ChromaFlux's superior performance.</p>
-<h2 class="text-3xl font-bold mt-12 mb-6 text-gray-900 border-b border-gray-100 pb-3">Unprecedented Visual Fidelity and Efficiency Redefined</h2>
-<p class="mb-6 text-gray-700 text-lg leading-relaxed">The impact of ChromaFlux on visual fidelity is nothing short of revolutionary. Imagine displays with:</p>
-<ul class="list-disc pl-6 mb-6 space-y-2 text-gray-700 text-lg leading-relaxed">
-<li><strong class="font-semibold text-gray-900">Infinite Contrast:</strong> Because each pixel is self-emissive and can be turned off completely, ChromaFlux achieves absolute black, leading to an infinite contrast ratio that renders images with astonishing depth and realism, akin to the best OLED panels.</li>
-<li><strong class="font-semibold text-gray-900">Extreme Brightness:</strong> Unlike OLEDs, which can have lower peak brightness and suffer from automatic brightness limiting (ABL) for large bright areas, ChromaFlux can achieve sustained, eye-searing brightness levels without compromising lifespan or color accuracy. This makes it ideal for HDR content and outdoor visibility.</li>
-<li><strong class="font-semibold text-gray-900">Perfect Color Accuracy and Volume:</strong> The pure spectral output of the quantum emitters ensures unparalleled color reproduction, covering well beyond 100% of the DCI-P3 color space and making significant strides towards the Rec. 2020 standard.</li>
-<li><strong class="font-semibold text-gray-900">Unrivaled Power Efficiency:</strong> The direct emission and molecular-level control mean minimal energy waste. ChromaFlux displays are significantly more power-efficient than even MicroLEDs at all brightness levels, especially for displaying varied content. This is a game-changer for battery-powered devices.</li>
-<li><strong class="font-semibold text-gray-900">Wide Viewing Angles:</strong> Light is emitted directly from each pixel, ensuring perfect color and brightness uniformity even at extreme viewing angles.</li>
-</ul>
-<h2 class="text-3xl font-bold mt-12 mb-6 text-gray-900 border-b border-gray-100 pb-3">Beyond the Flat Panel: A Form Factor Revolution</h2>
-<p class="mb-6 text-gray-700 text-lg leading-relaxed">Perhaps one of the most exciting aspects of ChromaFlux is its inherent flexibility and durability. Unlike traditional displays that rely on brittle glass substrates or even current flexible OLEDs that use plastic, which can have durability concerns and manufacturing complexities, SpectraGen's materials science advancements allow ChromaFlux panels to be incredibly thin, lightweight, and genuinely pliable. This opens the door to a new generation of device form factors:</p>
-<ul class="list-disc pl-6 mb-6 space-y-2 text-gray-700 text-lg leading-relaxed">
-<li><strong class="font-semibold text-gray-900">Truly Rollable and Foldable Devices:</strong> Imagine smartphones that unfurl into large tablets without any visible crease, or televisions that disappear into slender rolls when not in use.</li>
-<li><strong class="font-semibold text-gray-900">Seamless Integration:</strong> Displays can now be integrated into virtually any surface, from automotive interiors that adapt to driver needs, to transparent smart windows, and even dynamic, flowing architectural elements.</li>
-<li><strong class="font-semibold text-gray-900">Enhanced Wearables:</strong> Lighter, more vibrant, and more durable smartwatches and smart glasses that blend effortlessly into daily life.</li>
-</ul>
-<h2 class="text-3xl font-bold mt-12 mb-6 text-gray-900 border-b border-gray-100 pb-3">Impact Across the Tech Landscape</h2>
-<p class="mb-6 text-gray-700 text-lg leading-relaxed">The implications of ChromaFlux are vast and transformative, touching nearly every segment of the consumer electronics and industrial display markets:</p>
-<h3 class="text-2xl font-bold mt-10 mb-4 text-gray-900">Smartphones & Tablets</h3>
-<p class="mb-6 text-gray-700 text-lg leading-relaxed">The mobile experience will be revolutionized. Expect thinner, lighter devices with dramatically longer battery life, screens that are perfectly legible even under direct sunlight, and truly immersive foldable designs that are far more robust than anything seen before.</p>
-<h3 class="text-2xl font-bold mt-10 mb-4 text-gray-900">Televisions & Monitors</h3>
-<p class="mb-6 text-gray-700 text-lg leading-relaxed">ChromaFlux TVs will offer a home theater experience currently unimaginable. Infinite contrast, peak brightness previously exclusive to cinema projectors, and color accuracy that mirrors reality will make content come alive. The possibility of rollable or even transparent TVs could redefine living spaces.</p>
-<h3 class="text-2xl font-bold mt-10 mb-4 text-gray-900">Augmented & Virtual Reality</h3>
-<p class="mb-6 text-gray-700 text-lg leading-relaxed">This is where ChromaFlux could make one of its most profound impacts. High-resolution Micro-OLED and MicroLED microdisplays are currently driving AR/VR advancements, offering high pixel density and brightness. However, ChromaFlux, with its superior efficiency, ultra-high pixel density capabilities (eliminating the "screen door effect"), and compact form factor, will enable AR glasses that are indistinguishable from regular eyewear, with fields of view that match human peripheral vision and battery life to sustain all-day use.</p>
-<h3 class="text-2xl font-bold mt-10 mb-4 text-gray-900">Automotive Displays</h3>
-<p class="mb-6 text-gray-700 text-lg leading-relaxed">Dashboards, infotainment systems, and heads-up displays will become dynamic, seamlessly integrated surfaces. Transparent ChromaFlux panels could project navigation and telemetry directly onto the windshield with perfect clarity and brightness, reducing driver distraction and enhancing safety.</p>
-<h3 class="text-2xl font-bold mt-10 mb-4 text-gray-900">Wearables and Smart Devices</h3>
-<p class="mb-6 text-gray-700 text-lg leading-relaxed">From smartwatches with always-on, vibrant displays that last weeks on a single charge, to smart jewelry and clothing with integrated, unobtrusive visual feedback, ChromaFlux will empower a new generation of intelligent, aesthetically pleasing personal tech.</p>
-<h3 class="text-2xl font-bold mt-10 mb-4 text-gray-900">Public & Commercial Displays</h3>
-<p class="mb-6 text-gray-700 text-lg leading-relaxed">The durability, brightness, and energy efficiency of ChromaFlux make it ideal for large-scale digital signage, interactive public installations, and even dynamic architectural facades, offering unparalleled visual impact with significantly reduced operational costs.</p>
-<h2 class="text-3xl font-bold mt-12 mb-6 text-gray-900 border-b border-gray-100 pb-3">Key Specifications (Projected for Initial Commercial Panels)</h2>
-<ul class="list-disc pl-6 mb-6 space-y-2 text-gray-700 text-lg leading-relaxed">
-<li><strong class="font-semibold text-gray-900">Peak Brightness:</strong> >5,000 nits (Full Field)</li>
-<li><strong class="font-semibold text-gray-900">Contrast Ratio:</strong> Infinite (True Black)</li>
-<li><strong class="font-semibold text-gray-900">Color Gamut:</strong> >120% DCI-P3, >90% Rec. 2020</li>
-<li><strong class="font-semibold text-gray-900">Power Efficiency:</strong> Up to 60% more efficient than current MicroLEDs at comparable brightness levels.</li>
-<li><strong class="font-semibold text-gray-900">Lifespan:</strong> >100,000 hours to 50% brightness (estimated, based on accelerated testing)</li>
-<li><strong class="font-semibold text-gray-900">Panel Thickness:</strong> As thin as 0.1mm for flexible substrates</li>
-<li><strong class="font-semibold text-gray-900">Response Time:</strong> <0.01ms (Instantaneous)</li>
-<li><strong class="font-semibold text-gray-900">Burn-in Risk:</strong> Effectively eliminated due to inorganic materials.</li>
-</ul>
-<h2 class="text-3xl font-bold mt-12 mb-6 text-gray-900 border-b border-gray-100 pb-3">The Road Ahead</h2>
-<p class="mb-6 text-gray-700 text-lg leading-relaxed">SpectraGen Innovations plans to roll out ChromaFlux in stages, with initial high-end commercial and specialty applications expected within the next 12-18 months. Consumer devices, starting with premium smartphones and AR/VR headsets, are anticipated in late 2027 to early 2028, as manufacturing scales and costs are optimized. The company acknowledges the immense challenge of mass production for a technology this advanced but expresses confidence in its proprietary manufacturing techniques and robust supply chain partnerships. While competitors continue to refine OLED and grapple with MicroLED's complexities, SpectraGen appears to have leapfrogged them all.</p>
-<h2 class="text-3xl font-bold mt-12 mb-6 text-gray-900 border-b border-gray-100 pb-3">The Bottom Line</h2>
-<p class="mb-6 text-gray-700 text-lg leading-relaxed">ChromaFlux isn't just an incremental improvement; it's a fundamental reimagining of display technology. By marrying the perfect blacks of OLED with the extreme brightness and longevity of inorganic materials, all while dramatically improving power efficiency and unlocking truly flexible form factors, SpectraGen has unveiled a display that delivers on nearly every promise of future tech. Today, April 29, 2026, marks the day the digital world became significantly more vivid, efficient, and versatile. The future of visual technology is no longer just bright; it's ChromaFlux.</p>
+
+            <!-- Body -->
+            <div class="prose">
+                {body_html}
             </div>
-            <footer class="mt-16 pt-8 border-t border-gray-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                <a href="../index.html" class="inline-flex items-center gap-2 text-blue-600 font-bold hover:gap-3 transition-all">
-                    <span>←</span> Back to all articles
+
+            <!-- Footer -->
+            <footer class="mt-20 pt-8 border-t border-neutral-800 flex flex-col sm:flex-row items-center justify-between gap-6">
+                <a href="../index.html"
+                   class="inline-flex items-center gap-2 bg-dark-800 hover:bg-dark-700 border border-neutral-700 text-white px-6 py-3 rounded-full font-bold text-sm transition-all group">
+                    <span class="group-hover:-translate-x-1 transition-transform">←</span>
+                    Return to Feed
                 </a>
-                <span class="text-xs text-gray-400 uppercase tracking-widest font-bold">RAAPPO · Tech Intelligence</span>
+                <span class="text-[10px] text-neutral-600 uppercase tracking-[0.2em] font-bold">End of Report</span>
             </footer>
         </article>
     </div>
     
     </main>
-    <footer class="bg-gray-900 text-gray-300 mt-24">
-        <div class="max-w-7xl mx-auto px-5 pt-16 pb-10">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
-                <div>
-                    <div class="text-2xl font-black text-white tracking-tighter mb-4">RAAPPO<span class="text-blue-400">.</span></div>
-                    <p class="text-gray-400 text-sm leading-relaxed">Decentralized autonomous news network delivering the most vital technological intelligence of 2026.</p>
+
+    <!-- ── Footer ── -->
+    <footer class="border-t border-neutral-800 bg-dark-900/50 mt-20">
+        <div class="max-w-6xl mx-auto px-6 py-12 md:py-16">
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-10 md:gap-6">
+                <div class="md:col-span-5">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-6 h-6 rounded bg-brand-500 flex items-center justify-center">
+                            <span class="text-white text-[10px] font-black">R</span>
+                        </div>
+                        <span class="text-lg font-black text-white tracking-tight">RAAPPO Global Intelligence</span>
+                    </div>
+                    <p class="text-neutral-400 text-sm leading-relaxed max-w-sm">Decentralized, AI-augmented intelligence briefings covering 2026's most consequential breakthroughs in quantum computing, AGI, and synthetic biology.</p>
                 </div>
-                <div>
-                    <h4 class="font-bold uppercase tracking-widest text-xs text-gray-500 mb-5">Navigate</h4>
-                    <ul class="space-y-3 text-sm font-medium">
-                        <li><a href="../index.html" class="hover:text-white transition">Front Page</a></li>
-                        <li><a href="../index.html#trending" class="hover:text-white transition">Trending</a></li>
-                        <li><a href="../index.html#archive" class="hover:text-white transition">Archive</a></li>
-                        <li><a href="../index.html#about" class="hover:text-white transition">About</a></li>
+                <div class="md:col-span-3">
+                    <h4 class="font-bold uppercase tracking-[0.2em] text-[10px] text-neutral-500 mb-5">Navigation</h4>
+                    <ul class="space-y-3 text-sm text-neutral-400">
+                        <li><a href="../index.html" class="hover:text-brand-400 transition-colors">Front Page</a></li>
+                        <li><a href="../index.html#archive" class="hover:text-brand-400 transition-colors">Archives</a></li>
                     </ul>
                 </div>
-                <div>
-                    <h4 class="font-bold uppercase tracking-widest text-xs text-gray-500 mb-5">System</h4>
-                    <div class="flex items-center gap-2 text-sm text-emerald-400 font-bold mb-4">
-                        <span class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span>
-                        All systems operational
+                <div class="md:col-span-4">
+                    <h4 class="font-bold uppercase tracking-[0.2em] text-[10px] text-neutral-500 mb-5">System Status</h4>
+                    <div class="bg-dark-800/50 rounded-lg p-4 border border-neutral-800/80 inline-block w-full">
+                        <div class="flex items-center gap-3 mb-2">
+                            <span class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span>
+                            <span class="text-sm text-emerald-400 font-bold tracking-wide">Network Nominal</span>
+                        </div>
+                        <div class="text-[11px] text-neutral-500 uppercase tracking-wider font-mono">
+                            Node: eu-central-1<br>
+                            Engine: Gemini 1.5 Flash
+                        </div>
                     </div>
-                    <p class="text-xs text-gray-600">Powered by Gemini 2.5 · Supabase · Cloudflare Pages</p>
                 </div>
             </div>
-            <div class="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-gray-600">
-                <p>© 2026 RAAPPO GLOBAL. All rights reserved.</p>
-                <div class="flex gap-6 uppercase tracking-widest font-bold">
-                    <a href="#" class="hover:text-gray-300 transition">Privacy</a>
-                    <a href="#" class="hover:text-gray-300 transition">Terms</a>
-                    <a href="#" class="hover:text-gray-300 transition">RSS</a>
+            <div class="border-t border-neutral-800/80 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-[11px] text-neutral-500 uppercase tracking-widest font-semibold">
+                <p>© 2026 RAAPPO. All rights reserved.</p>
+                <div class="flex gap-6">
+                    <a href="#" class="hover:text-brand-400 transition-colors">Privacy</a>
+                    <a href="#" class="hover:text-brand-400 transition-colors">Terms</a>
+                    <a href="#" class="hover:text-brand-400 transition-colors">Data Policy</a>
                 </div>
             </div>
         </div>
     </footer>
+
+    <script>
+        // Progress bar
+        window.addEventListener("scroll", () => {
+            const el = document.getElementById("progress-bar");
+            const doc = document.documentElement;
+            const pct = (doc.scrollTop / (doc.scrollHeight - doc.clientHeight)) * 100;
+            if (el) el.style.width = pct + "%";
+        });
+
+        // Reveal on scroll
+        const revealEls = document.querySelectorAll(".reveal");
+        const obs = new IntersectionObserver((entries) => {
+            entries.forEach(e => { if (e.isIntersecting) e.target.classList.add("visible"); });
+        }, { threshold: 0.1 });
+        revealEls.forEach(el => obs.observe(el));
+    </script>
 </body>
 </html>

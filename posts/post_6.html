@@ -1,200 +1,284 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>The Dawn of Limitless Energy: Conflux Energy Dynamics Unveils Groundbreaking Aetherion Stellarator | RAAPPO</title>
-    <meta name="description" content="RAAPPO — Decentralized autonomous tech intelligence for 2026.">
+    <title>The Dawn of Limitless Energy: Conflux Energy Dynamics Unveils Groundbreaking Aetherion Stellarator | RAAPPO Global Intelligence</title>
+    <meta name="description" content="RAAPPO Global Intelligence — Daily technology briefings on 2026's most consequential breakthroughs.">
     <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: 'class',
+        theme: {
+          extend: {
+            colors: {
+              brand: {
+                400: '#38bdf8',
+                500: '#0ea5e9',
+                600: '#0284c7',
+              },
+              dark: {
+                900: '#0a0a0a',
+                800: '#171717',
+                700: '#262626',
+              }
+            },
+            fontFamily: {
+              sans: ['"Plus Jakarta Sans"', 'sans-serif'],
+              serif: ['"Lora"', 'serif'],
+              mono: ['"Fira Code"', 'monospace'],
+            }
+          }
+        }
+      }
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=Lora:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400&family=Lora:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Plus Jakarta Sans', sans-serif; scroll-behavior: smooth; }
-        .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
-        .line-clamp-3 { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
-        .article-content { font-family: 'Lora', Georgia, serif; color: #374151; }
-        .article-content p  { font-size: 1.125rem; line-height: 1.85; margin-bottom: 1.5rem; color: #374151; }
-        .article-content h2 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.75rem; font-weight: 800; color: #111827; margin-top: 3rem; margin-bottom: 1.25rem; padding-bottom: 0.5rem; border-bottom: 2px solid #f3f4f6; }
-        .article-content h3 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.375rem; font-weight: 700; color: #1f2937; margin-top: 2.25rem; margin-bottom: 1rem; }
-        .article-content h4 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 1.125rem; font-weight: 700; color: #374151; margin-top: 1.75rem; margin-bottom: 0.75rem; }
-        .article-content ul { list-style: disc; padding-left: 1.75rem; margin-bottom: 1.5rem; }
-        .article-content ol { list-style: decimal; padding-left: 1.75rem; margin-bottom: 1.5rem; }
-        .article-content li { font-size: 1.05rem; line-height: 1.8; margin-bottom: 0.5rem; color: #374151; }
-        .article-content strong { font-weight: 700; color: #111827; font-family: 'Plus Jakarta Sans', sans-serif; }
-        .article-content em  { font-style: italic; }
-        .article-content code { background: #f1f5f9; color: #2563eb; padding: 0.125rem 0.375rem; border-radius: 0.25rem; font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', 'Monaco', 'Courier New', monospace; font-size: 0.9em; }
-        .article-content blockquote { border-left: 4px solid #3b82f6; padding-left: 1.25rem; margin: 2rem 0; font-style: italic; color: #6b7280; }
-        #mobile-menu { display: none; }
-        #mobile-menu.open { display: block; }
+        body {
+            background-color: #0a0a0a;
+            color: #e5e5e5;
+            -webkit-font-smoothing: antialiased;
+            overflow-x: hidden;
+        }
+        
+        ::selection { background: rgba(14, 165, 233, 0.3); color: #fff; }
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #0a0a0a; }
+        ::-webkit-scrollbar-thumb { background: #262626; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #404040; }
+
+        /* Background Glow Orb */
+        .glow-orb {
+            position: absolute;
+            top: -200px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 800px;
+            height: 400px;
+            background: radial-gradient(ellipse at center, rgba(14,165,233,0.15) 0%, rgba(10,10,10,0) 70%);
+            pointer-events: none;
+            z-index: -1;
+        }
+
+        .clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .clamp-3 { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+
+        /* Glass Nav */
+        .glass-nav {
+            background: rgba(10, 10, 10, 0.65);
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+
+        /* Typography tweaks */
+        .prose { font-family: "Lora", serif; font-size: 1.15rem; line-height: 1.9; color: #d4d4d8; }
+        .prose p { margin-bottom: 2rem; }
+        .prose h2 { font-family: "Plus Jakarta Sans", sans-serif; font-size: 1.8rem; font-weight: 800; color: #ffffff; margin-top: 4rem; margin-bottom: 1.5rem; letter-spacing: -0.02em; border-bottom: 1px solid #262626; padding-bottom: 0.5rem; }
+        .prose h3 { font-family: "Plus Jakarta Sans", sans-serif; font-size: 1.4rem; font-weight: 700; color: #f4f4f5; margin-top: 3rem; margin-bottom: 1rem; }
+        .prose h4 { font-family: "Plus Jakarta Sans", sans-serif; font-size: 1.2rem; font-weight: 700; color: #f4f4f5; margin-top: 2rem; margin-bottom: 0.75rem; }
+        .prose ul, .prose ol { margin-bottom: 2rem; padding-left: 1.5rem; }
+        .prose li { margin-bottom: 0.75rem; }
+        .prose strong { color: #ffffff; font-weight: 600; font-family: "Plus Jakarta Sans", sans-serif; }
+        .prose a { color: #38bdf8; text-decoration: none; border-bottom: 1px solid rgba(56,189,248,0.3); transition: border-color 0.2s; }
+        .prose a:hover { border-color: rgba(56,189,248,1); }
+        .prose blockquote { border-left: 3px solid #0ea5e9; padding: 1rem 1.5rem; font-style: italic; color: #a1a1aa; margin: 2.5rem 0; background: #171717; border-radius: 0 0.5rem 0.5rem 0; }
+        .prose code { background: #171717; color: #38bdf8; padding: 0.2rem 0.4rem; border-radius: 0.25rem; font-family: "Fira Code", monospace; font-size: 0.85em; border: 1px solid #262626; }
+
+        /* Premium Cards */
+        .card-premium {
+            background: rgba(23, 23, 23, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(10px);
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        .card-premium:hover {
+            transform: translateY(-4px);
+            background: rgba(23, 23, 23, 0.8);
+            border-color: rgba(14, 165, 233, 0.3);
+            box-shadow: 0 20px 40px -10px rgba(0, 0, 0, 0.5), 0 0 20px rgba(14, 165, 233, 0.1);
+        }
+
+        /* Badges */
+        .badge {
+            font-size: 0.7rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+            padding: 0.25rem 0.75rem; border-radius: 999px;
+            background: rgba(14, 165, 233, 0.1);
+            color: #38bdf8;
+            border: 1px solid rgba(14, 165, 233, 0.2);
+            display: inline-flex; align-items: center; gap: 0.3rem;
+        }
+        .badge-pulse { position: relative; padding-left: 1.75rem; }
+        .badge-pulse::before {
+            content: ''; position: absolute; left: 0.6rem; top: 50%; transform: translateY(-50%);
+            width: 6px; height: 6px; border-radius: 50%; background: #38bdf8;
+            box-shadow: 0 0 8px #38bdf8; animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0% { opacity: 1; box-shadow: 0 0 0 0 rgba(56,189,248, 0.4); }
+            70% { opacity: 0.5; box-shadow: 0 0 0 4px rgba(56,189,248, 0); }
+            100% { opacity: 1; box-shadow: 0 0 0 0 rgba(56,189,248, 0); }
+        }
+
+        /* Reveal Animation */
+        .reveal { opacity: 0; transform: translateY(20px); transition: opacity 0.8s ease-out, transform 0.8s ease-out; }
+        .reveal.visible { opacity: 1; transform: translateY(0); }
+
+        #progress-bar {
+            position: fixed; top: 0; left: 0; height: 2px;
+            background: #0ea5e9;
+            box-shadow: 0 0 10px #0ea5e9;
+            width: 0%; z-index: 200; transition: width 0.1s;
+        }
     </style>
 </head>
-<body class="bg-[#f8f9fa] text-[#1a1a1a]">
-    <nav class="sticky top-0 z-[100] bg-white/90 backdrop-blur-xl border-b border-gray-100 shadow-sm">
-        <div class="max-w-7xl mx-auto px-5 h-20 flex items-center justify-between gap-4">
-            <a href="../index.html" class="text-2xl font-extrabold tracking-tighter hover:text-blue-600 transition shrink-0">RAAPPO<span class="text-blue-600">.</span></a>
-            <div class="hidden lg:flex items-center gap-8">
-                <a href="../index.html" class="text-[11px] font-black uppercase tracking-[0.18em] text-gray-500 hover:text-blue-600 transition">Home</a>
-                <a href="../index.html#trending" class="text-[11px] font-black uppercase tracking-[0.18em] text-gray-500 hover:text-blue-600 transition">Trending</a>
-                <a href="../index.html#archive" class="text-[11px] font-black uppercase tracking-[0.18em] text-gray-500 hover:text-blue-600 transition">Archive</a>
-                <a href="../index.html#about" class="text-[11px] font-black uppercase tracking-[0.18em] text-gray-500 hover:text-blue-600 transition">About</a>
+<body class="antialiased relative">
+    <div class="glow-orb"></div>
+    <div id="progress-bar"></div>
+
+    <!-- ── Navbar ── -->
+    <nav class="sticky top-0 z-[100] glass-nav transition-all duration-300" id="navbar">
+        <div class="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
+            <a href="../index.html" class="flex items-center gap-3 group">
+                <div class="w-8 h-8 rounded bg-gradient-to-br from-brand-400 to-brand-600 flex items-center justify-center shadow-[0_0_15px_rgba(14,165,233,0.3)] group-hover:shadow-[0_0_20px_rgba(14,165,233,0.5)] transition-all duration-300">
+                    <span class="text-white text-sm font-black tracking-tighter">R</span>
+                </div>
+                <span class="text-lg font-extrabold tracking-tight text-white group-hover:text-brand-400 transition-colors">RAAPPO<span class="text-brand-500">.</span></span>
+            </a>
+
+            <div class="hidden md:flex items-center gap-8">
+                <a href="../index.html"           class="text-[11px] font-bold uppercase tracking-[0.2em] text-neutral-400 hover:text-white transition-colors">Intelligence</a>
+                <a href="../index.html#archive"   class="text-[11px] font-bold uppercase tracking-[0.2em] text-neutral-400 hover:text-white transition-colors">Archive</a>
             </div>
-            <div class="flex items-center gap-3">
-                <span class="hidden md:inline-flex text-[10px] font-bold text-emerald-600 bg-emerald-50 border border-emerald-200 px-3 py-1 rounded-full uppercase tracking-widest items-center gap-1.5">
-                    <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full animate-pulse"></span> Live 2026
-                </span>
-                <button id="hamburger-btn" class="lg:hidden w-10 h-10 flex flex-col items-center justify-center gap-[5px] rounded-xl border border-gray-200 hover:bg-gray-50 transition" aria-label="Open menu" onclick="document.getElementById('mobile-menu').classList.toggle('open')">
-                    <span class="w-5 h-[2px] bg-gray-700 rounded-full"></span>
-                    <span class="w-5 h-[2px] bg-gray-700 rounded-full"></span>
-                    <span class="w-5 h-[2px] bg-gray-700 rounded-full"></span>
+
+            <div class="flex items-center gap-4">
+                <span class="hidden sm:inline-flex badge badge-pulse">Live 2026</span>
+                <button id="hamburger-btn" class="md:hidden text-neutral-300 hover:text-white" aria-label="Open menu" onclick="document.getElementById('mobile-menu').classList.toggle('hidden')">
+                    <span class="block w-5 h-[2px] bg-white mb-1"></span>
+                    <span class="block w-5 h-[2px] bg-white mb-1"></span>
+                    <span class="block w-5 h-[2px] bg-white"></span>
                 </button>
             </div>
         </div>
-        <div id="mobile-menu" class="lg:hidden bg-white border-t border-gray-100 px-5 py-4">
-            <ul class="flex flex-col gap-1">
-                <li><a href="../index.html" class="flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-bold text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition">🏠 Home</a></li>
-                <li><a href="../index.html#trending" class="flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-bold text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition">🔥 Trending</a></li>
-                <li><a href="../index.html#archive" class="flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-bold text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition">📚 Archive</a></li>
-                <li><a href="../index.html#about" class="flex items-center gap-2 px-4 py-3 rounded-xl text-sm font-bold text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition">ℹ️ About</a></li>
+        <div id="mobile-menu" class="hidden md:hidden bg-dark-900 border-b border-neutral-800 px-6 py-4 absolute w-full">
+            <ul class="flex flex-col gap-4">
+                <li><a href="../index.html" class="text-sm font-bold uppercase tracking-widest text-neutral-300 hover:text-brand-400">Intelligence</a></li>
+                <li><a href="../index.html#archive" class="text-sm font-bold uppercase tracking-widest text-neutral-300 hover:text-brand-400">Archive</a></li>
             </ul>
         </div>
     </nav>
-    <main class="max-w-7xl mx-auto px-5 py-12">
+
+    <!-- ── Page content ── -->
+    <main class="relative z-10 pt-10 pb-20">
         
-    <div class="max-w-4xl mx-auto">
-        <nav class="mb-10 text-sm font-medium text-gray-500 flex items-center gap-2">
-            <a href="../index.html" class="hover:text-blue-600 transition">Home</a>
-            <span class="text-gray-300">/</span>
-            <span class="text-gray-800 truncate max-w-xs">The Dawn of Limitless Energy: Conflux Energy Dynamics Unveils Groundbreaking Aetherion Stellarator</span>
+    <div class="max-w-3xl mx-auto px-5">
+        <!-- Breadcrumb -->
+        <nav class="mb-10 text-[11px] font-bold uppercase tracking-widest text-neutral-500 flex items-center gap-3 flex-wrap reveal">
+            <a href="../index.html" class="hover:text-brand-400 transition-colors">Intelligence</a>
+            <span class="text-neutral-700">/</span>
+            <span class="text-neutral-300 truncate max-w-xs">{post_title}</span>
         </nav>
-        <article>
-            <header class="mb-10">
-                <div class="flex items-center gap-3 mb-5">
-                    <span class="px-3 py-1 bg-blue-600 text-white text-xs font-bold uppercase tracking-widest rounded-full">Technical Analysis</span>
-                    <span class="text-gray-400 text-sm">2026-04-29</span>
-                    <span class="text-gray-300">·</span>
-                    <span class="text-gray-400 text-sm">5 min read</span>
+
+        <article class="reveal">
+            <!-- Header -->
+            <header class="mb-12">
+                <div class="flex flex-wrap items-center gap-4 mb-6">
+                    <span class="badge">Classified Report</span>
+                    <span class="text-neutral-400 text-xs font-mono tracking-wider">{post_date}</span>
                 </div>
-                <h1 class="text-4xl md:text-5xl font-black leading-tight text-gray-900 mb-6">The Dawn of Limitless Energy: Conflux Energy Dynamics Unveils Groundbreaking Aetherion Stellarator</h1>
+                <h1 class="text-4xl md:text-5xl font-extrabold leading-[1.15] text-white mb-6 tracking-tight drop-shadow-sm">{post_title}</h1>
             </header>
-            <figure class="mb-12">
-                <img src="https://picsum.photos/seed/raappopost6/1600/900" alt="The Dawn of Limitless Energy: Conflux Energy Dynamics Unveils Groundbreaking Aetherion Stellarator" class="w-full aspect-video object-cover rounded-2xl shadow-xl">
+
+            <!-- Hero image -->
+            <figure class="mb-14 rounded-2xl overflow-hidden shadow-[0_0_40px_rgba(0,0,0,0.5)] border border-neutral-800 relative group">
+                <div class="absolute inset-0 bg-gradient-to-t from-dark-900/60 via-transparent to-transparent z-10 pointer-events-none"></div>
+                <img src="{img_src}"
+                     alt="{post_title}"
+                     class="w-full h-auto max-h-[500px] object-cover group-hover:scale-105 transition-transform duration-1000 ease-out"
+                     loading="eager">
             </figure>
-            <div class="article-content">
-                <h2 class="text-3xl font-bold mt-12 mb-6 text-gray-900 border-b border-gray-100 pb-3">The Dawn of Limitless Energy: Conflux Energy Dynamics Unveils Groundbreaking Aetherion Stellarator</h2>
-<p class="mb-6 text-gray-700 text-lg leading-relaxed">
-Today, April 29, 2026, marks a pivotal moment in humanity's quest for clean, abundant energy. In a highly anticipated announcement from Geneva, Switzerland, Conflux Energy Dynamics (CED) revealed the successful, sustained operation of its prototype Aetherion Stellarator, achieving a net energy gain (Q factor) exceeding 10 for over 30 minutes in a deuterium-tritium plasma. This breakthrough, validated by an independent consortium of international physicists, ushers in a new era for fusion power, positioning it firmly on the path to commercial viability within the next decade.
-</p>
-<p class="mb-6 text-gray-700 text-lg leading-relaxed">
-For over half a century, nuclear fusion—the process that powers the sun and stars—has captivated scientists with its promise of a virtually inexhaustible, carbon-free, and inherently safe energy source. The immense energy released when light atomic nuclei fuse, forming heavier ones, could fundamentally reshape global energy landscapes, address climate change, and ensure energy security for generations. Yet, the scientific and engineering hurdles have been monumental. The core challenge lies in creating and controlling a superheated plasma, a state of matter where atoms are stripped of their electrons, at temperatures exceeding 100 million degrees Celsius, for sustained periods.
-</p><h2 class="text-3xl font-bold mt-12 mb-6 text-gray-900 border-b border-gray-100 pb-3">The Confinement Conundrum: Tokamaks vs. Stellarators</h2>
-<p class="mb-6 text-gray-700 text-lg leading-relaxed">
-The pursuit of controlled nuclear fusion has largely revolved around two primary magnetic confinement concepts: tokamaks and stellarators. Tokamaks, characterized by their doughnut-shaped (toroidal) vacuum chambers, use a combination of strong external magnetic fields and a powerful electrical current induced within the plasma itself to confine the superheated fuel. While tokamaks have demonstrated impressive performance in heating and density, their reliance on a plasma current introduces inherent instabilities that necessitate pulsed operations and complex control systems. Large-scale international projects like ITER, though making significant progress in construction and assembly, have faced schedule adjustments, with initial operation of deuterium-deuterium plasma now anticipated for 2035.
-</p>
-<p class="mb-6 text-gray-700 text-lg leading-relaxed">
-Stellarators, the "cousins" of tokamaks, take a different approach. Instead of relying on a plasma current, stellarators employ intricately shaped, non-axisymmetric external magnetic coils to create a twisted, inherently stable magnetic field that confines the plasma. This design allows for continuous, steady-state operation, eliminating the disruptive instabilities often seen in tokamaks and reducing the need for continuous active control. However, the very complexity of these twisted magnetic coils has historically made stellarators incredibly challenging to design and build with the precision required for effective plasma confinement. Early stellarators suffered from significant energy losses, hindering their performance.
-</p><h2 class="text-3xl font-bold mt-12 mb-6 text-gray-900 border-b border-gray-100 pb-3">The Aetherion Revelation: A Leap in Stellarator Design</h2>
-<p class="mb-6 text-gray-700 text-lg leading-relaxed">
-Conflux Energy Dynamics' Aetherion Stellarator directly addresses and overcomes these historical limitations through a synergistic combination of advanced materials science, exascale computational optimization, and novel engineering. Dr. Anya Sharma, lead scientist for the Aetherion project, highlighted the core innovations:
-</p>
-<ul class="list-disc pl-6 mb-6 space-y-2 text-gray-700 text-lg leading-relaxed">
-    <li class="leading-relaxed">
-        <strong class="font-semibold text-gray-900">Precision-Optimized Field Coils:</strong> Leveraging breakthroughs in computational fluid dynamics and topology optimization, the Aetherion’s external superconducting magnets are manufactured with unprecedented micron-level precision. This intricate coil geometry creates a magnetic cage that is "quasi-isodynamic" – a design philosophy that minimizes particle drift and energy loss, ensuring superior plasma confinement. This level of precision was previously considered economically unfeasible but has been unlocked by additive manufacturing techniques adapted for high-temperature superconducting (HTS) materials. Advances in HTS magnet technology have been a critical enabler, allowing for much stronger magnetic fields in a more compact footprint.
-    </li>
-    <li class="leading-relaxed">
-        <strong class="font-semibold text-gray-900">"Sentinel" Plasma-Facing Components:</strong> One of the most significant challenges in fusion energy has been the durability of materials exposed to the extreme heat and intense neutron bombardment from fusion reactions. The Aetherion Stellarator incorporates a revolutionary new class of ceramic-matrix composite materials, dubbed "Sentinel" composites. These materials are engineered with self-healing properties at the atomic level, significantly extending their lifespan within the reactor and dramatically reducing activation and material degradation. This innovation reduces the frequency of component replacement and minimizes the volume of activated materials.
-    </li>
-    <li class="leading-relaxed">
-        <strong class="font-semibold text-gray-900">Dynamic Plasma Shaping Algorithms:</strong> While stellarators are inherently stable, maintaining optimal plasma performance requires exquisite control. The Aetherion employs a real-time, self-correcting magnetic field adjustment system. This system, operating at nanosecond speeds, continuously monitors plasma parameters and makes minute adjustments to auxiliary magnetic coils, ensuring consistent confinement and preventing the accumulation of impurities. This dynamic shaping effectively mitigates remaining plasma turbulence and energy transport losses.
-    </li>
-</ul>
-<p class="mb-6 text-gray-700 text-lg leading-relaxed">
-The sustained Q > 10 operation means the Aetherion prototype produced more than ten times the energy required to heat and confine its plasma, a critical threshold for economically viable power generation. This was not a fleeting moment but a steady state, demonstrating the robust stability inherent to the optimized stellarator design.
-</p><h2 class="text-3xl font-bold mt-12 mb-6 text-gray-900 border-b border-gray-100 pb-3">A New Era of Energy Independence</h2>
-<p class="mb-6 text-gray-700 text-lg leading-relaxed">
-The implications of the Aetherion Stellarator's success are profound. Fusion energy offers the potential for:
-</p>
-<ul class="list-disc pl-6 mb-6 space-y-2 text-gray-700 text-lg leading-relaxed">
-    <li class="leading-relaxed">
-        <strong class="font-semibold text-gray-900">Clean Energy at Scale:</strong> With virtually no greenhouse gas emissions or long-lived radioactive waste, fusion represents the ultimate clean energy solution, capable of providing baseload power without the intermittency of renewables or the waste concerns of fission.
-    </li>
-    <li class="leading-relaxed">
-        <strong class="font-semibold text-gray-900">Energy Security:</strong> The primary fuels—deuterium, readily extracted from water, and tritium, which can be bred within the reactor itself—are abundant and globally distributed, freeing nations from reliance on volatile fossil fuel markets.
-    </li>
-    <li class="leading-relaxed">
-        <strong class="font-semibold text-gray-900">Enhanced Safety:</strong> Fusion reactions are inherently safe. There is no possibility of a runaway chain reaction like in fission reactors, and the plasma quickly dissipates if confinement is lost.
-    </li>
-</ul><h2 class="text-3xl font-bold mt-12 mb-6 text-gray-900 border-b border-gray-100 pb-3">Economic and Societal Ripples</h2>
-<p class="mb-6 text-gray-700 text-lg leading-relaxed">
-The commercialization of fusion energy, accelerated by breakthroughs like the Aetherion Stellarator, promises to trigger an economic transformation. Investment in the fusion industry has already seen significant growth in recent years, with private fusion firms attracting billions in capital. This breakthrough is expected to supercharge that trend.
-</p>
-<p class="mb-6 text-gray-700 text-lg leading-relaxed">
-We can anticipate the emergence of new industries focused on fusion reactor construction, advanced materials manufacturing, and specialized component supply chains. Job creation across engineering, physics, and skilled trades will be substantial. Furthermore, the prospect of distributed fusion power plants, potentially smaller and more modular than current designs, could enable energy independence for communities and industries globally, reducing the need for vast transmission infrastructure and increasing resilience against grid failures.
-</p><h2 class="text-3xl font-bold mt-12 mb-6 text-gray-900 border-b border-gray-100 pb-3">The Road Ahead</h2>
-<p class="mb-6 text-gray-700 text-lg leading-relaxed">
-While today's announcement is a monumental step, the journey to widespread commercial fusion power still involves significant engineering and scale-up challenges. Conflux Energy Dynamics has outlined an ambitious roadmap for the next phase:
-</p>
-<ul class="list-disc pl-6 mb-6 space-y-2 text-gray-700 text-lg leading-relaxed">
-    <li class="leading-relaxed">
-        <strong class="font-semibold text-gray-900">Pilot Plant Construction:</strong> CED plans to break ground on its first commercial-scale pilot plant, codenamed "Genesis," within the next 18 months. Genesis aims to demonstrate continuous electricity generation at a power-plant relevant scale.
-    </li>
-    <li class="leading-relaxed">
-        <strong class="font-semibold text-gray-900">Tritium Breeding Optimization:</strong> Further research will focus on optimizing the "breeding blanket" technologies within the reactor that produce tritium fuel from lithium, ensuring a closed and sustainable fuel cycle.
-    </li>
-    <li class="leading-relaxed">
-        <strong class="font-semibold text-gray-900">Grid Integration:</strong> Collaborations with national grids and energy providers will be essential to develop the necessary infrastructure for integrating fusion power into existing energy systems.
-    </li>
-</ul>
-<p class="mb-6 text-gray-700 text-lg leading-relaxed">
-Experts now project that commercial fusion power could be consistently delivered to grids by the early 2030s, significantly shortening previous timelines. The Aetherion Stellarator, with its demonstrated stability and energy gain, is set to be at the forefront of this energy revolution.
-</p><h2 class="text-3xl font-bold mt-12 mb-6 text-gray-900 border-b border-gray-100 pb-3">Conclusion</h2>
-<p class="mb-6 text-gray-700 text-lg leading-relaxed">
-Today, the age-old dream of harnessing the power of the stars on Earth is closer than ever before. Conflux Energy Dynamics' Aetherion Stellarator represents not just a scientific triumph but a beacon of hope for a sustainable future. By demonstrating sustained, high-gain fusion in a stable, steady-state stellarator, CED has laid down a clear path for the commercial deployment of fusion energy. The world watches with bated breath as this breakthrough promises to redefine our relationship with energy, paving the way for a cleaner, more prosperous planet.
-</p>
+
+            <!-- Body -->
+            <div class="prose">
+                {body_html}
             </div>
-            <footer class="mt-16 pt-8 border-t border-gray-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
-                <a href="../index.html" class="inline-flex items-center gap-2 text-blue-600 font-bold hover:gap-3 transition-all">
-                    <span>←</span> Back to all articles
+
+            <!-- Footer -->
+            <footer class="mt-20 pt-8 border-t border-neutral-800 flex flex-col sm:flex-row items-center justify-between gap-6">
+                <a href="../index.html"
+                   class="inline-flex items-center gap-2 bg-dark-800 hover:bg-dark-700 border border-neutral-700 text-white px-6 py-3 rounded-full font-bold text-sm transition-all group">
+                    <span class="group-hover:-translate-x-1 transition-transform">←</span>
+                    Return to Feed
                 </a>
-                <span class="text-xs text-gray-400 uppercase tracking-widest font-bold">RAAPPO · Tech Intelligence</span>
+                <span class="text-[10px] text-neutral-600 uppercase tracking-[0.2em] font-bold">End of Report</span>
             </footer>
         </article>
     </div>
     
     </main>
-    <footer class="bg-gray-900 text-gray-300 mt-24">
-        <div class="max-w-7xl mx-auto px-5 pt-16 pb-10">
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
-                <div>
-                    <div class="text-2xl font-black text-white tracking-tighter mb-4">RAAPPO<span class="text-blue-400">.</span></div>
-                    <p class="text-gray-400 text-sm leading-relaxed">Decentralized autonomous news network delivering the most vital technological intelligence of 2026.</p>
+
+    <!-- ── Footer ── -->
+    <footer class="border-t border-neutral-800 bg-dark-900/50 mt-20">
+        <div class="max-w-6xl mx-auto px-6 py-12 md:py-16">
+            <div class="grid grid-cols-1 md:grid-cols-12 gap-10 md:gap-6">
+                <div class="md:col-span-5">
+                    <div class="flex items-center gap-3 mb-6">
+                        <div class="w-6 h-6 rounded bg-brand-500 flex items-center justify-center">
+                            <span class="text-white text-[10px] font-black">R</span>
+                        </div>
+                        <span class="text-lg font-black text-white tracking-tight">RAAPPO Global Intelligence</span>
+                    </div>
+                    <p class="text-neutral-400 text-sm leading-relaxed max-w-sm">Decentralized, AI-augmented intelligence briefings covering 2026's most consequential breakthroughs in quantum computing, AGI, and synthetic biology.</p>
                 </div>
-                <div>
-                    <h4 class="font-bold uppercase tracking-widest text-xs text-gray-500 mb-5">Navigate</h4>
-                    <ul class="space-y-3 text-sm font-medium">
-                        <li><a href="../index.html" class="hover:text-white transition">Front Page</a></li>
-                        <li><a href="../index.html#trending" class="hover:text-white transition">Trending</a></li>
-                        <li><a href="../index.html#archive" class="hover:text-white transition">Archive</a></li>
-                        <li><a href="../index.html#about" class="hover:text-white transition">About</a></li>
+                <div class="md:col-span-3">
+                    <h4 class="font-bold uppercase tracking-[0.2em] text-[10px] text-neutral-500 mb-5">Navigation</h4>
+                    <ul class="space-y-3 text-sm text-neutral-400">
+                        <li><a href="../index.html" class="hover:text-brand-400 transition-colors">Front Page</a></li>
+                        <li><a href="../index.html#archive" class="hover:text-brand-400 transition-colors">Archives</a></li>
                     </ul>
                 </div>
-                <div>
-                    <h4 class="font-bold uppercase tracking-widest text-xs text-gray-500 mb-5">System</h4>
-                    <div class="flex items-center gap-2 text-sm text-emerald-400 font-bold mb-4">
-                        <span class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span>
-                        All systems operational
+                <div class="md:col-span-4">
+                    <h4 class="font-bold uppercase tracking-[0.2em] text-[10px] text-neutral-500 mb-5">System Status</h4>
+                    <div class="bg-dark-800/50 rounded-lg p-4 border border-neutral-800/80 inline-block w-full">
+                        <div class="flex items-center gap-3 mb-2">
+                            <span class="w-2 h-2 bg-emerald-400 rounded-full animate-pulse"></span>
+                            <span class="text-sm text-emerald-400 font-bold tracking-wide">Network Nominal</span>
+                        </div>
+                        <div class="text-[11px] text-neutral-500 uppercase tracking-wider font-mono">
+                            Node: eu-central-1<br>
+                            Engine: Gemini 1.5 Flash
+                        </div>
                     </div>
-                    <p class="text-xs text-gray-600">Powered by Gemini 2.5 · Supabase · Cloudflare Pages</p>
                 </div>
             </div>
-            <div class="border-t border-gray-800 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-xs text-gray-600">
-                <p>© 2026 RAAPPO GLOBAL. All rights reserved.</p>
-                <div class="flex gap-6 uppercase tracking-widest font-bold">
-                    <a href="#" class="hover:text-gray-300 transition">Privacy</a>
-                    <a href="#" class="hover:text-gray-300 transition">Terms</a>
-                    <a href="#" class="hover:text-gray-300 transition">RSS</a>
+            <div class="border-t border-neutral-800/80 mt-12 pt-8 flex flex-col md:flex-row justify-between items-center gap-4 text-[11px] text-neutral-500 uppercase tracking-widest font-semibold">
+                <p>© 2026 RAAPPO. All rights reserved.</p>
+                <div class="flex gap-6">
+                    <a href="#" class="hover:text-brand-400 transition-colors">Privacy</a>
+                    <a href="#" class="hover:text-brand-400 transition-colors">Terms</a>
+                    <a href="#" class="hover:text-brand-400 transition-colors">Data Policy</a>
                 </div>
             </div>
         </div>
     </footer>
+
+    <script>
+        // Progress bar
+        window.addEventListener("scroll", () => {
+            const el = document.getElementById("progress-bar");
+            const doc = document.documentElement;
+            const pct = (doc.scrollTop / (doc.scrollHeight - doc.clientHeight)) * 100;
+            if (el) el.style.width = pct + "%";
+        });
+
+        // Reveal on scroll
+        const revealEls = document.querySelectorAll(".reveal");
+        const obs = new IntersectionObserver((entries) => {
+            entries.forEach(e => { if (e.isIntersecting) e.target.classList.add("visible"); });
+        }, { threshold: 0.1 });
+        revealEls.forEach(el => obs.observe(el));
+    </script>
 </body>
 </html>
