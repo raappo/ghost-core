@@ -29,11 +29,11 @@ def download_and_store_image(keywords: str, post_id: int) -> str:
     if not os.path.exists("assets"):
         os.makedirs("assets")
 
-    local_path   = f"assets/image_{post_id}.jpg"
     safe_kw      = re.sub(r"[^a-zA-Z0-9,\s]", "", keywords)[:80].strip()
+    encoded_kw   = urllib.parse.quote(safe_kw)
     # Unsplash source API is deprecated, using pollinations.ai for AI-generated tech images
     pollinations_url = f"https://image.pollinations.ai/prompt/technological%20{encoded_kw}?width=1600&height=900&nologo=true"
-    fallback_url = f"https://placehold.co/1600x900/171717/38bdf8?text=Intelligence+Report"
+    fallback_url = f"https://loremflickr.com/1600/900/technology,computer"
 
     for url in (pollinations_url, fallback_url):
         try:
@@ -52,7 +52,7 @@ def get_asset_url(post_id: int, root: str = "") -> str:
     local = f"assets/image_{post_id}.jpg"
     if os.path.exists(local):
         return f"{root}{local}"
-    return f"https://placehold.co/1600x900/171717/38bdf8?text=Intelligence+Report"
+    return f"https://loremflickr.com/1600/900/technology,computer"
 
 # ─────────────────────────────────────────────
 # 3. Supabase Helpers
@@ -70,7 +70,7 @@ def get_next_available_id() -> int:
 # ─────────────────────────────────────────────
 def inline_markdown(text: str) -> str:
     text = re.sub(r"\*\*\*(.+?)\*\*\*", r"<strong><em>\1</em></strong>", text)
-    text = re.sub(r"\*\*(.+?)\*\*",     r'<strong class="font-semibold text-gray-900">\1</strong>', text)
+    text = re.sub(r"\*\*(.+?)\*\*",     r'<strong class="font-semibold text-white">\1</strong>', text)
     text = re.sub(r"\*(.+?)\*",         r'<em class="italic">\1</em>', text)
     text = re.sub(r"`(.+?)`",           r'<code class="bg-gray-100 text-blue-700 px-1.5 py-0.5 rounded text-sm font-mono">\1</code>', text)
     return text
@@ -88,7 +88,7 @@ def markdown_to_html(text: str) -> str:
             content = " ".join(in_para_lines).strip()
             if content:
                 html_parts.append(
-                    f'<p class="mb-8 text-gray-700 text-lg leading-relaxed">{inline_markdown(content)}</p>'
+                    f'<p class="mb-8 text-neutral-300 text-lg leading-relaxed">{inline_markdown(content)}</p>'
                 )
             in_para_lines = []
 
@@ -111,12 +111,12 @@ def markdown_to_html(text: str) -> str:
             level   = len(m.group(1))
             content = inline_markdown(m.group(2).strip())
             classes = {
-                1: "text-3xl font-extrabold mt-14 mb-6 text-gray-900 border-b border-slate-100 pb-4",
-                2: "text-3xl font-extrabold mt-14 mb-6 text-gray-900 border-b border-slate-100 pb-4",
-                3: "text-2xl font-bold mt-10 mb-4 text-gray-900",
-                4: "text-xl font-bold mt-8 mb-3 text-gray-800",
-                5: "text-lg font-bold mt-6 mb-2 text-gray-800",
-                6: "text-base font-bold mt-4 mb-2 text-gray-700",
+                1: "text-3xl font-extrabold mt-14 mb-6 text-white border-b border-neutral-800 pb-4",
+                2: "text-3xl font-extrabold mt-14 mb-6 text-white border-b border-neutral-800 pb-4",
+                3: "text-2xl font-bold mt-10 mb-4 text-neutral-100",
+                4: "text-xl font-bold mt-8 mb-3 text-neutral-200",
+                5: "text-lg font-bold mt-6 mb-2 text-neutral-200",
+                6: "text-base font-bold mt-4 mb-2 text-neutral-300",
             }
             cls = classes.get(level, classes[2])
             tag = "h2" if level <= 2 else f"h{level}"
@@ -128,7 +128,7 @@ def markdown_to_html(text: str) -> str:
             flush_para()
             if in_ol: html_parts.append("</ol>"); in_ol = False
             if not in_ul:
-                html_parts.append('<ul class="list-disc pl-6 mb-8 space-y-3 text-gray-700 text-lg leading-relaxed">')
+                html_parts.append('<ul class="list-disc pl-6 mb-8 space-y-3 text-neutral-300 text-lg leading-relaxed">')
                 in_ul = True
             html_parts.append(f"<li>{inline_markdown(m.group(1))}</li>"); continue
 
@@ -137,7 +137,7 @@ def markdown_to_html(text: str) -> str:
             flush_para()
             if in_ul: html_parts.append("</ul>"); in_ul = False
             if not in_ol:
-                html_parts.append('<ol class="list-decimal pl-6 mb-8 space-y-3 text-gray-700 text-lg leading-relaxed">')
+                html_parts.append('<ol class="list-decimal pl-6 mb-8 space-y-3 text-neutral-300 text-lg leading-relaxed">')
                 in_ol = True
             html_parts.append(f"<li>{inline_markdown(m.group(1))}</li>"); continue
 
@@ -155,29 +155,29 @@ def apply_html_styles(html_content: str) -> str:
 
     replacements = [
         (r"<h1(?![^>]*class)[^>]*>(.*?)</h1>",
-         r'<h2 class="text-3xl font-extrabold mt-14 mb-6 text-gray-900 border-b border-slate-100 pb-4">\1</h2>'),
+         r'<h2 class="text-3xl font-extrabold mt-14 mb-6 text-white border-b border-neutral-800 pb-4">\1</h2>'),
         (r"<h2(?![^>]*class)[^>]*>(.*?)</h2>",
-         r'<h2 class="text-3xl font-extrabold mt-14 mb-6 text-gray-900 border-b border-slate-100 pb-4">\1</h2>'),
+         r'<h2 class="text-3xl font-extrabold mt-14 mb-6 text-white border-b border-neutral-800 pb-4">\1</h2>'),
         (r"<h3(?![^>]*class)[^>]*>(.*?)</h3>",
-         r'<h3 class="text-2xl font-bold mt-10 mb-4 text-gray-900">\1</h3>'),
+         r'<h3 class="text-2xl font-bold mt-10 mb-4 text-neutral-100">\1</h3>'),
         (r"<h4(?![^>]*class)[^>]*>(.*?)</h4>",
-         r'<h4 class="text-xl font-bold mt-8 mb-3 text-gray-800">\1</h4>'),
+         r'<h4 class="text-xl font-bold mt-8 mb-3 text-neutral-200">\1</h4>'),
         (r"<p(?![^>]*class)[^>]*>(.*?)</p>",
-         r'<p class="mb-8 text-gray-700 text-lg leading-relaxed">\1</p>'),
+         r'<p class="mb-8 text-neutral-300 text-lg leading-relaxed">\1</p>'),
         (r"<ul(?![^>]*class)[^>]*>",
-         r'<ul class="list-disc pl-6 mb-8 space-y-3 text-gray-700 text-lg leading-relaxed">'),
+         r'<ul class="list-disc pl-6 mb-8 space-y-3 text-neutral-300 text-lg leading-relaxed">'),
         (r"<ol(?![^>]*class)[^>]*>",
-         r'<ol class="list-decimal pl-6 mb-8 space-y-3 text-gray-700 text-lg leading-relaxed">'),
+         r'<ol class="list-decimal pl-6 mb-8 space-y-3 text-neutral-300 text-lg leading-relaxed">'),
         (r"<li(?![^>]*class)[^>]*>",
          r'<li class="leading-relaxed">'),
         (r"<strong(?![^>]*class)[^>]*>(.*?)</strong>",
-         r'<strong class="font-semibold text-gray-900">\1</strong>'),
+         r'<strong class="font-semibold text-white">\1</strong>'),
     ]
     for pattern, repl in replacements:
         html_content = re.sub(pattern, repl, html_content, flags=re.DOTALL)
 
     html_content = re.sub(r"\*\*(.+?)\*\*",
-                          r'<strong class="font-semibold text-gray-900">\1</strong>',
+                          r'<strong class="font-semibold text-white">\1</strong>',
                           html_content)
     return html_content
 
@@ -649,10 +649,7 @@ CONCLUSION:
         try:
             response = client.models.generate_content(
                 model=model_id,
-                contents=prompt,
-                config=types.GenerateContentConfig(
-                    tools=[types.Tool(google_search=types.GoogleSearch())]
-                ),
+                contents=prompt
             )
             if response and response.text:
                 print(f"Generation successful with {model_id}.")
