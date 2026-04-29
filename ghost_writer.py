@@ -591,8 +591,47 @@ def build_homepage(all_posts: list, hero_summary: str, target_id: int) -> None:
     with open("index.html", "w", encoding="utf-8") as f:
         f.write(render_base_template("Intelligence Feed", content, is_home=True))
 
+def rebuild_site() -> None:
+    import os
+    if not os.path.exists("posts"):
+        os.makedirs("posts")
+
+    all_posts = (
+        supabase.table("content_farm")
+        .select("*")
+        .order("created_at", desc=True)
+        .execute()
+        .data
+    )
+    
+    if not all_posts:
+        print("No posts found in database.")
+        return
+
+    # Render individual post pages
+    for post in all_posts:
+        render_post_page(post, get_asset_url(post["id"]))
+
+    hero = all_posts[0]
+    # Extract summary from body
+    body = hero.get("body_content", "")
+    summary = "Latest intelligence briefing."
+    if "SUMMARY:" in body:
+        try:
+            summary = body.split("SUMMARY:")[1].split("IMAGE_PROMPT:")[0].strip()
+        except:
+            pass
+    elif body:
+        text = re.sub(r'<[^>]+>', '', body)
+        text = re.sub(r'#.*', '', text)
+        paragraphs = [p.strip() for p in text.split('\n') if p.strip()]
+        if paragraphs:
+            summary = paragraphs[0][:200] + "..."
+            
+    build_homepage(all_posts, summary, hero["id"])
+    print("Site rebuilt successfully.")
+
 def generate_article() -> None:
-    model_id  = "gemini-1.5-flash"
     target_id = get_next_available_id()
 
     prompt = """
@@ -614,7 +653,10 @@ CONCLUSION:
 """
 
     response = None
-    for attempt in range(3):
+    models_to_try = ["gemini-2.5-flash", "gemini-2.0-flash", "gemini-1.5-flash"]
+    
+    for model_id in models_to_try:
+        print(f"Trying generation with model: {model_id}")
         try:
             response = client.models.generate_content(
                 model=model_id,
@@ -623,13 +665,16 @@ CONCLUSION:
                     tools=[types.Tool(google_search=types.GoogleSearch())]
                 ),
             )
-            break
+            if response and response.text:
+                print(f"Generation successful with {model_id}.")
+                break
         except Exception as e:
-            print(f"Attempt {attempt + 1} failed: {e}")
-            time.sleep(20)
+            print(f"Model {model_id} failed: {e}")
+            time.sleep(5)
 
-    if not response:
-        print("All generation attempts failed.")
+    if not response or not response.text:
+        print("All generation attempts failed. Rebuilding site with existing posts.")
+        rebuild_site()
         return
 
     text = response.text
@@ -646,39 +691,32 @@ CONCLUSION:
             "The latest in global technology.", "technology,innovation,2026"
         )
 
+    print(f"Metadata extracted: {title} | {img_kw}")
+
     # Download & store image
-    img_path = download_and_store_image(img_kw, target_id)
+    try:
+        img_path = download_and_store_image(img_kw, target_id)
+        print(f"✓ Image stored at: {img_path}")
+    except Exception as e:
+        print(f"Failed to download image: {e}")
+        img_path = f"https://picsum.photos/seed/raappopost{target_id}/1600/900"
 
     # Persist to Supabase
-    supabase.table("content_farm").insert({
-        "id":          target_id,
-        "title":       title,
-        "body_content": text,
-        "domain_name": "news.raappo.cf",
-    }).execute()
+    try:
+        supabase.table("content_farm").insert({
+            "id":          target_id,
+            "title":       title,
+            "body_content": text,
+            "domain_name": "news.raappo.cf",
+        }).execute()
+        print(f"✓ Published post {target_id} to database.")
+    except Exception as e:
+        print(f"Failed to insert into Supabase: {e}")
+        print("Rebuilding site with existing posts instead.")
+        rebuild_site()
+        return
 
-    # Fetch all posts and rebuild site
-    if not os.path.exists("posts"):
-        os.makedirs("posts")
-
-    all_posts = (
-        supabase.table("content_farm")
-        .select("*")
-        .order("created_at", desc=True)
-        .execute()
-        .data
-    )
-
-    # Render individual post pages
-    for post in all_posts:
-        render_post_page(post, get_asset_url(post["id"]))
-
-    # Rebuild homepage
-    build_homepage(all_posts, summary, target_id)
-
-    print(f"✓ Published post {target_id}: {title}")
-    print(f"✓ Image stored at: {img_path}")
-
+    rebuild_site()
 
 if __name__ == "__main__":
     generate_article()
