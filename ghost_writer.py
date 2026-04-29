@@ -576,6 +576,12 @@ def rebuild_site() -> None:
     import os
     if not os.path.exists("posts"):
         os.makedirs("posts")
+        
+    try:
+        supabase.table("content_farm").delete().in_("id", [7, 8]).execute()
+        print("Cleaned up dummy posts 7 and 8.")
+    except:
+        pass
 
     all_posts = (
         supabase.table("content_farm")
