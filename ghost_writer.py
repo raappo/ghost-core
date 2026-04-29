@@ -410,7 +410,7 @@ def render_base_template(title, content, is_home=True):
         .article-content li {{ font-size: 1.05rem; line-height: 1.8; margin-bottom: 0.5rem; color: #374151; }}
         .article-content strong {{ font-weight: 700; color: #111827; font-family: 'Plus Jakarta Sans', sans-serif; }}
         .article-content em  {{ font-style: italic; }}
-        .article-content code {{ background: #f1f5f9; color: #2563eb; padding: 0.125rem 0.375rem; border-radius: 0.25rem; font-family: 'Courier New', monospace; font-size: 0.9em; }}
+        .article-content code {{ background: #f1f5f9; color: #2563eb; padding: 0.125rem 0.375rem; border-radius: 0.25rem; font-family: 'JetBrains Mono', 'Fira Code', 'Consolas', 'Monaco', 'Courier New', monospace; font-size: 0.9em; }}
         .article-content blockquote {{ border-left: 4px solid #3b82f6; padding-left: 1.25rem; margin: 2rem 0; font-style: italic; color: #6b7280; }}
 
         /* Mobile menu */
