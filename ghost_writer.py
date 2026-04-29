@@ -32,8 +32,8 @@ def download_and_store_image(keywords: str, post_id: int) -> str:
     local_path   = f"assets/image_{post_id}.jpg"
     safe_kw      = re.sub(r"[^a-zA-Z0-9,\s]", "", keywords)[:80].strip()
     # Unsplash source API is deprecated, using pollinations.ai for AI-generated tech images
-    pollinations_url = f"https://image.pollinations.ai/prompt/technological%20{safe_kw}?width=1600&height=900&nologo=true"
-    fallback_url = f"https://picsum.photos/seed/raappopost{post_id}/1600/900"
+    pollinations_url = f"https://image.pollinations.ai/prompt/technological%20{encoded_kw}?width=1600&height=900&nologo=true"
+    fallback_url = f"https://placehold.co/1600x900/171717/38bdf8?text=Intelligence+Report"
 
     for url in (pollinations_url, fallback_url):
         try:
@@ -52,7 +52,7 @@ def get_asset_url(post_id: int, root: str = "") -> str:
     local = f"assets/image_{post_id}.jpg"
     if os.path.exists(local):
         return f"{root}{local}"
-    return f"https://picsum.photos/seed/raappopost{post_id}/1600/900"
+    return f"https://placehold.co/1600x900/171717/38bdf8?text=Intelligence+Report"
 
 # ─────────────────────────────────────────────
 # 3. Supabase Helpers
@@ -286,7 +286,7 @@ def render_base_template(title: str, content: str, is_home: bool = True) -> str:
         }}
 
         /* Typography tweaks */
-        .prose {{ font-family: "Lora", serif; font-size: 1.15rem; line-height: 1.9; color: #f3f4f6; }}
+        .prose {{ font-family: "Lora", serif; font-size: 1.05rem; line-height: 1.8; color: #ffffff; }}
         .prose p {{ margin-bottom: 2rem; }}
         .prose h2 {{ font-family: "Plus Jakarta Sans", sans-serif; font-size: 1.8rem; font-weight: 800; color: #ffffff; margin-top: 4rem; margin-bottom: 1.5rem; letter-spacing: -0.02em; border-bottom: 1px solid #262626; padding-bottom: 0.5rem; }}
         .prose h3 {{ font-family: "Plus Jakarta Sans", sans-serif; font-size: 1.4rem; font-weight: 700; color: #f4f4f5; margin-top: 3rem; margin-bottom: 1rem; }}
@@ -462,20 +462,20 @@ def render_post_page(post: dict, img_path: str) -> None:
 
         <article>
             <!-- Header -->
-            <header class="mb-12">
-                <div class="flex flex-wrap items-center gap-4 mb-6">
+            <header class="mb-10">
+                <div class="flex flex-wrap items-center gap-4 mb-4">
                     <span class="badge">Classified Report</span>
-                    <span class="text-neutral-400 text-xs font-mono tracking-wider">{post_date}</span>
+                    <span class="text-neutral-300 text-xs font-mono tracking-wider">{post_date}</span>
                 </div>
-                <h1 class="text-4xl md:text-5xl font-extrabold leading-[1.15] text-white mb-6 tracking-tight drop-shadow-sm">{post_title}</h1>
+                <h1 class="text-3xl md:text-4xl font-extrabold leading-[1.15] text-white mb-6 tracking-tight drop-shadow-sm">{post_title}</h1>
             </header>
 
             <!-- Hero image -->
-            <figure class="mb-14 rounded-2xl overflow-hidden shadow-[0_0_40px_rgba(0,0,0,0.5)] border border-neutral-800 relative group">
+            <figure class="mb-10 rounded-2xl overflow-hidden shadow-[0_0_40px_rgba(0,0,0,0.5)] border border-neutral-800 relative group">
                 <div class="absolute inset-0 bg-gradient-to-t from-dark-900/60 via-transparent to-transparent z-10 pointer-events-none"></div>
                 <img src="{img_src}"
                      alt="{post_title}"
-                     class="w-full h-auto max-h-[500px] object-cover group-hover:scale-105 transition-transform duration-1000 ease-out"
+                     class="w-full h-auto max-h-[400px] object-cover group-hover:scale-105 transition-transform duration-1000 ease-out"
                      loading="eager">
             </figure>
 
@@ -512,20 +512,20 @@ def build_homepage(all_posts: list, hero_summary: str, target_id: int) -> None:
 
     # ── Featured hero ──────────────────────────
     hero_html = f"""
-    <section class="mb-20 px-5">
-        <div class="relative rounded-[2rem] overflow-hidden bg-dark-900 h-[450px] md:h-[550px] flex items-end shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-neutral-800 group cursor-pointer" onclick="window.location.href='posts/post_{hero["id"]}.html'">
+    <section class="mb-16 px-5">
+        <div class="relative rounded-[1.5rem] overflow-hidden bg-dark-900 h-[320px] md:h-[400px] flex items-end shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-neutral-800 group cursor-pointer" onclick="window.location.href='posts/post_{hero["id"]}.html'">
             <img src="{hero_img}"
                  alt="{hero["title"]}"
                  class="absolute inset-0 w-full h-full object-cover opacity-50 group-hover:opacity-60 group-hover:scale-[1.03] transition-all duration-1000 ease-out">
             <div class="absolute inset-0 bg-gradient-to-t from-dark-900 via-dark-900/60 to-transparent pointer-events-none"></div>
             <div class="relative z-10 p-8 md:p-14 max-w-4xl">
-                <div class="flex flex-wrap items-center gap-3 mb-5">
+                <div class="flex flex-wrap items-center gap-3 mb-4">
                     <span class="badge badge-pulse">Top Story</span>
                     <span class="text-brand-400 text-xs font-mono tracking-wider">{hero["created_at"][:10]}</span>
                 </div>
-                <h2 class="text-3xl md:text-5xl font-extrabold text-white mb-5 leading-[1.15] tracking-tight clamp-3 drop-shadow-md">{hero["title"]}</h2>
-                <p class="text-neutral-300 text-base md:text-lg mb-8 leading-relaxed clamp-2 max-w-2xl drop-shadow">{hero_summary}</p>
-                <div class="inline-flex items-center gap-3 bg-white text-dark-900 px-7 py-3.5 rounded-full font-bold text-sm hover:bg-brand-400 hover:text-white transition-all duration-300 group/btn">
+                <h2 class="text-2xl md:text-4xl font-extrabold text-white mb-4 leading-[1.15] tracking-tight clamp-2 drop-shadow-md">{hero["title"]}</h2>
+                <p class="text-neutral-300 text-sm md:text-base mb-6 leading-relaxed clamp-2 max-w-2xl drop-shadow">{hero_summary}</p>
+                <div class="inline-flex items-center gap-3 bg-white text-dark-900 px-6 py-2.5 rounded-full font-bold text-sm hover:bg-brand-400 hover:text-white transition-all duration-300 group/btn">
                     Read Intelligence Report
                     <span class="group-hover/btn:translate-x-1 transition-transform">→</span>
                 </div>
@@ -543,20 +543,20 @@ def build_homepage(all_posts: list, hero_summary: str, target_id: int) -> None:
         thumb   = get_asset_url(p_id)
         
         cards_html += f"""
-        <a href="posts/post_{p_id}.html" class="card-premium group block rounded-2xl overflow-hidden flex flex-col relative h-[380px]">
-            <div class="h-48 overflow-hidden relative shrink-0">
+        <a href="posts/post_{p_id}.html" class="card-premium group block rounded-xl overflow-hidden flex flex-col relative h-[280px]">
+            <div class="h-36 overflow-hidden relative shrink-0">
                 <div class="absolute inset-0 bg-dark-900/20 group-hover:bg-transparent transition-colors z-10"></div>
                 <img src="{thumb}" alt="{p_title}" loading="lazy" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out">
             </div>
-            <div class="p-6 flex flex-col flex-grow bg-dark-800/30">
-                <div class="flex items-center gap-3 mb-4">
+            <div class="p-5 flex flex-col flex-grow bg-dark-800/30">
+                <div class="flex items-center gap-2 mb-3">
                     <span class="w-1.5 h-1.5 bg-brand-500 rounded-full"></span>
-                    <span class="text-neutral-500 text-[10px] font-mono tracking-widest">{p_date}</span>
+                    <span class="text-neutral-400 text-[10px] font-mono tracking-widest">{p_date}</span>
                 </div>
-                <h3 class="text-lg font-bold text-white group-hover:text-brand-400 clamp-3 leading-snug mb-4 transition-colors">{p_title}</h3>
-                <div class="mt-auto pt-4 border-t border-neutral-800/50 flex items-center justify-between">
-                    <span class="text-xs text-neutral-400 font-semibold uppercase tracking-widest group-hover:text-white transition-colors">Access File</span>
-                    <span class="text-neutral-600 group-hover:text-brand-400 transition-colors group-hover:translate-x-1">→</span>
+                <h3 class="text-base font-bold text-white group-hover:text-brand-400 clamp-2 leading-snug mb-3 transition-colors">{p_title}</h3>
+                <div class="mt-auto pt-3 border-t border-neutral-800/50 flex items-center justify-between">
+                    <span class="text-[11px] text-neutral-300 font-bold uppercase tracking-widest group-hover:text-white transition-colors">Access File</span>
+                    <span class="text-neutral-500 group-hover:text-brand-400 transition-colors group-hover:translate-x-1">→</span>
                 </div>
             </div>
         </a>
