@@ -21,36 +21,17 @@ supabase = create_client(SB_URL, SB_KEY)
 # 2. Image Persistence Engine
 # ─────────────────────────────────────────────
 def download_and_store_image(keywords: str, post_id: int) -> str:
-    """
-    Downloads a topic-relevant image from Unsplash and stores it locally.
-    Returns the relative asset path (assets/image_{post_id}.jpg).
-    Falls back to picsum if Unsplash fails.
-    """
     if not os.path.exists("assets"):
         os.makedirs("assets")
 
-    safe_kw      = re.sub(r"[^a-zA-Z0-9,\s]", "", keywords)[:80].strip()
-    encoded_kw   = urllib.parse.quote(safe_kw)
-    # Unsplash source API is deprecated, using pollinations.ai for AI-generated tech images
-    pollinations_url = f"https://image.pollinations.ai/prompt/technological%20{encoded_kw}?width=1600&height=900&nologo=true"
-
-    try:
-        r = requests.get(pollinations_url, timeout=15, allow_redirects=True)
-        if r.status_code == 200 and len(r.content) > 10_000:
-            with open(local_path, "wb") as f:
-                f.write(r.content)
-            return local_path
-    except Exception:
-        pass
-
-    return get_asset_url(post_id)
-
-def get_asset_url(post_id: int, root: str = "") -> str:
-    """Return the best available image URL for a post."""
-    local = f"assets/image_{post_id}.jpg"
-    if os.path.exists(local):
-        return f"{root}{local}"
+    local_path = f"assets/image_{post_id}.jpg"
+    if os.path.exists(local_path):
+        return local_path
         
+    safe_kw = re.sub(r"[^a-zA-Z0-9,\s]", "", keywords)[:80].strip()
+    encoded_kw = urllib.parse.quote(safe_kw)
+    
+    import random
     fallbacks = [
         "https://images.unsplash.com/photo-1518770660439-4636190af475?w=1600&h=900&fit=crop",
         "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=1600&h=900&fit=crop",
@@ -59,7 +40,36 @@ def get_asset_url(post_id: int, root: str = "") -> str:
         "https://images.unsplash.com/photo-1535223289827-42f1e9919769?w=1600&h=900&fit=crop",
         "https://images.unsplash.com/photo-1614064641913-6b17a159f8ed?w=1600&h=900&fit=crop"
     ]
+    
+    urls_to_try = [
+        f"https://image.pollinations.ai/prompt/technological%20{encoded_kw}?width=1600&height=900&nologo=true",
+        random.choice(fallbacks)
+    ]
+
+    for url in urls_to_try:
+        try:
+            r = requests.get(url, timeout=15, allow_redirects=True)
+            if r.status_code == 200 and len(r.content) > 5000:
+                with open(local_path, "wb") as f:
+                    f.write(r.content)
+                return local_path
+        except Exception:
+            pass
+
+    # Failsafe if download fails
     return fallbacks[post_id % len(fallbacks)]
+
+def get_asset_url(post_id: int, root: str = "", title: str = "technology") -> str:
+    """Return the best available image URL for a post, downloading it if necessary."""
+    local = f"assets/image_{post_id}.jpg"
+    if os.path.exists(local):
+        return f"{root}{local}"
+        
+    # If the image doesn't exist locally, forcefully download it now
+    res = download_and_store_image(title, post_id)
+    if res.startswith("assets/"):
+        return f"{root}{res}"
+    return res
 
 # ─────────────────────────────────────────────
 # 3. Supabase Helpers
@@ -455,7 +465,7 @@ def render_post_page(post: dict, img_path: str) -> None:
     post_date  = post["created_at"][:10]
     post_title = post["title"]
     body_html  = process_body_content(post["body_content"])
-    img_src    = get_asset_url(post_id, root="../")
+    img_src    = get_asset_url(post_id, root="../", title=post_title)
 
     content = f"""
     <div class="max-w-3xl mx-auto px-5">
@@ -513,32 +523,8 @@ def build_homepage(all_posts: list, hero_summary: str, target_id: int) -> None:
     if not all_posts:
         return
 
-    hero = all_posts[0]
-    hero_img = get_asset_url(hero["id"])
-
-    # ── Featured hero ──────────────────────────
-    hero_html = f"""
-    <section class="mb-16 px-5">
-        <div class="relative rounded-[1.5rem] overflow-hidden bg-dark-900 h-[320px] md:h-[400px] flex items-end shadow-[0_20px_50px_rgba(0,0,0,0.5)] border border-neutral-800 group cursor-pointer" onclick="window.location.href='posts/post_{hero["id"]}.html'">
-            <img src="{hero_img}"
-                 alt="{hero["title"]}"
-                 class="absolute inset-0 w-full h-full object-cover opacity-50 group-hover:opacity-60 group-hover:scale-[1.03] transition-all duration-1000 ease-out">
-            <div class="absolute inset-0 bg-gradient-to-t from-dark-900 via-dark-900/60 to-transparent pointer-events-none"></div>
-            <div class="relative z-10 p-8 md:p-14 max-w-4xl">
-                <div class="flex flex-wrap items-center gap-3 mb-4">
-                    <span class="badge badge-pulse">Top Story</span>
-                    <span class="text-brand-400 text-xs font-mono tracking-wider">{hero["created_at"][:10]}</span>
-                </div>
-                <h2 class="text-2xl md:text-4xl font-extrabold text-white mb-4 leading-[1.15] tracking-tight clamp-2 drop-shadow-md">{hero["title"]}</h2>
-                <p class="text-neutral-300 text-sm md:text-base mb-6 leading-relaxed clamp-2 max-w-2xl drop-shadow">{hero_summary}</p>
-                <div class="inline-flex items-center gap-3 bg-white text-dark-900 px-6 py-2.5 rounded-full font-bold text-sm hover:bg-brand-400 hover:text-white transition-all duration-300 group/btn">
-                    Read Intelligence Report
-                    <span class="group-hover/btn:translate-x-1 transition-transform">→</span>
-                </div>
-            </div>
-        </div>
-    </section>
-    """
+    # Removed Featured hero slider per user request
+    hero_html = ""
 
     # ── Article cards grid ────────────────────────────────────────
     cards_html = ""
@@ -546,7 +532,7 @@ def build_homepage(all_posts: list, hero_summary: str, target_id: int) -> None:
         p_id    = post["id"]
         p_title = post["title"]
         p_date  = post["created_at"][:10]
-        thumb   = get_asset_url(p_id)
+        thumb   = get_asset_url(p_id, title=p_title)
         
         cards_html += f"""
         <a href="posts/post_{p_id}.html" class="card-premium group block rounded-xl overflow-hidden flex flex-col relative h-[280px]">
@@ -572,7 +558,7 @@ def build_homepage(all_posts: list, hero_summary: str, target_id: int) -> None:
     {hero_html}
 
     <!-- Section: Archive -->
-    <section id="archive" class="mb-24 px-5">
+    <section id="archive" class="px-5">
         <div class="flex items-center gap-6 mb-10">
             <h2 class="text-2xl font-black tracking-tight text-white uppercase">Intelligence <span class="text-brand-500">Archive</span></h2>
             <div class="h-px flex-grow bg-gradient-to-r from-neutral-800 to-transparent"></div>
@@ -605,7 +591,7 @@ def rebuild_site() -> None:
 
     # Render individual post pages
     for post in all_posts:
-        render_post_page(post, get_asset_url(post["id"]))
+        render_post_page(post, get_asset_url(post["id"], title=post["title"]))
 
     hero = all_posts[0]
     # Extract summary from body
@@ -630,19 +616,19 @@ def generate_article() -> None:
     target_id = get_next_available_id()
 
     prompt = """
-Write a professional, in-depth technology news article dated today in 2026.
-CRITICAL: Do NOT mention that this is AI-generated, automated, or written by an AI. Write as a human journalist. Do NOT use phrases like "As an AI", "I am a bot", or refer to your own generation process.
+Write a professional, deeply detailed, multi-paragraph technology news article dated today in 2026.
+CRITICAL: Do NOT mention that this is AI-generated, automated, or written by an AI. Write exactly like a human tech journalist.
+CRITICAL: Write at least 4-5 substantive paragraphs. Expand heavily on technical details, market impact, and future prospects. Avoid short stubs.
 
 Return ONLY in this exact format with no extra commentary:
-TITLE: [Concise, factual, compelling title — no clickbait]
+TITLE: [Concise, factual, compelling title]
 CATEGORY: [Breaking, Deep Dive, or Analysis]
-SUMMARY: [Professional 2-sentence summary for the homepage]
+SUMMARY: [Professional 2-sentence summary]
 IMAGE_PROMPT: [3 comma-separated keywords for a relevant tech image, e.g. quantum,computing,processor]
 BODY:
-[1200 words of formatted markdown. Use ## for H2 headers. Use ### for H3 headers.
-Use **bold** for emphasis. Use bullet lists with - prefix.
-Write substantive paragraphs separated by blank lines.
-Avoid hollow filler sentences — every sentence must add information or insight.]
+[At least 800-1200 words of deeply researched formatted markdown. 
+Use ## for H2 headers. Use ### for H3 headers.
+Write substantive, long paragraphs separated by blank lines. Dive deep into the specific technology, how it works, and who is building it.]
 CONCLUSION:
 [2-3 sentences of forward-looking final thoughts]
 """
