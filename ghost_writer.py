@@ -33,37 +33,43 @@ def download_and_store_image(keywords: str, post_id: int) -> str:
     encoded_kw   = urllib.parse.quote(safe_kw)
     # Unsplash source API is deprecated, using pollinations.ai for AI-generated tech images
     pollinations_url = f"https://image.pollinations.ai/prompt/technological%20{encoded_kw}?width=1600&height=900&nologo=true"
-    fallback_url = f"https://loremflickr.com/1600/900/technology,computer"
 
-    for url in (pollinations_url, fallback_url):
-        try:
-            r = requests.get(url, timeout=15, allow_redirects=True)
-            if r.status_code == 200 and len(r.content) > 10_000:
-                with open(local_path, "wb") as f:
-                    f.write(r.content)
-                return local_path
-        except Exception:
-            continue
+    try:
+        r = requests.get(pollinations_url, timeout=15, allow_redirects=True)
+        if r.status_code == 200 and len(r.content) > 10_000:
+            with open(local_path, "wb") as f:
+                f.write(r.content)
+            return local_path
+    except Exception:
+        pass
 
-    return fallback_url   # absolute URL as last-resort
+    return get_asset_url(post_id)
 
 def get_asset_url(post_id: int, root: str = "") -> str:
     """Return the best available image URL for a post."""
     local = f"assets/image_{post_id}.jpg"
     if os.path.exists(local):
         return f"{root}{local}"
-    return f"https://loremflickr.com/1600/900/technology,computer"
+        
+    fallbacks = [
+        "https://images.unsplash.com/photo-1518770660439-4636190af475?w=1600&h=900&fit=crop",
+        "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=1600&h=900&fit=crop",
+        "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=1600&h=900&fit=crop",
+        "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=1600&h=900&fit=crop",
+        "https://images.unsplash.com/photo-1535223289827-42f1e9919769?w=1600&h=900&fit=crop",
+        "https://images.unsplash.com/photo-1614064641913-6b17a159f8ed?w=1600&h=900&fit=crop"
+    ]
+    return fallbacks[post_id % len(fallbacks)]
 
 # ─────────────────────────────────────────────
 # 3. Supabase Helpers
 # ─────────────────────────────────────────────
 def get_next_available_id() -> int:
-    result = supabase.table("content_farm").select("id").order("id", desc=False).execute()
+    result = supabase.table("content_farm").select("id").execute()
     existing = {row["id"] for row in result.data}
-    i = 1
-    while i in existing:
-        i += 1
-    return i
+    if not existing:
+        return 1
+    return max(existing) + 1
 
 # ─────────────────────────────────────────────
 # 4. Markdown → HTML Converter
@@ -658,12 +664,28 @@ CONCLUSION:
             print(f"Model {model_id} failed: {e}")
             time.sleep(5)
 
-    if not response or not response.text:
-        print("All generation attempts failed. Rebuilding site with existing posts.")
-        rebuild_site()
-        return
+    text = response.text if response and response.text else None
+    
+    if not text:
+        print("All generation attempts failed due to API limits. Using emergency fallback post.")
+        text = f"""TITLE: Classified Network Broadcast #{target_id}
+CATEGORY: Breaking
+SUMMARY: This is an automated diagnostic transmission confirming that the database pipeline is operational while primary AI neural networks recover from rate limiting.
+IMAGE_PROMPT: technology,server,datacenter
+BODY:
+## Secure Diagnostic Transmission
 
-    text = response.text
+The primary artificial intelligence neural networks (Gemini APIs) have currently exhausted their free-tier request quotas for the day. 
+
+This is an emergency fallback post generated automatically by the Ghost Writer orchestrator to verify that the **Supabase Database Insertion** and **GitHub Actions UI Deployment** pipelines are still fully functional.
+
+- **Database Link**: Nominal
+- **UI Rendering**: Active
+- **Automated Fallback**: Engaged
+
+Normal intelligence broadcasts will automatically resume once the global API quota resets.
+CONCLUSION:
+End of diagnostic transmission."""
 
     # Parse metadata
     try:
