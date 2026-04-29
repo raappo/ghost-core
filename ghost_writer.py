@@ -30,10 +30,11 @@ def download_and_store_image(keywords: str, post_id: int) -> str:
 
     local_path   = f"assets/image_{post_id}.jpg"
     safe_kw      = re.sub(r"[^a-zA-Z0-9,\s]", "", keywords)[:80].strip()
-    unsplash_url = f"https://source.unsplash.com/featured/1600x900?{safe_kw},tech"
+    # Unsplash source API is deprecated, using pollinations.ai for AI-generated tech images
+    pollinations_url = f"https://image.pollinations.ai/prompt/technological%20{safe_kw}?width=1600&height=900&nologo=true"
     fallback_url = f"https://picsum.photos/seed/raappopost{post_id}/1600/900"
 
-    for url in (unsplash_url, fallback_url):
+    for url in (pollinations_url, fallback_url):
         try:
             r = requests.get(url, timeout=15, allow_redirects=True)
             if r.status_code == 200 and len(r.content) > 10_000:
@@ -257,11 +258,12 @@ def render_base_template(title: str, content: str, is_home: bool = True) -> str:
         .prose blockquote {{ border-left: 3px solid var(--color-accent); padding: 0.5rem 1.25rem; margin: 2.5rem 0; font-style: italic; color: #64748b; background: #f8fafc; border-radius: 0 0.5rem 0.5rem 0; }}
 
         /* ── Card hover ring ── */
-        .card {{ transition: box-shadow 0.2s ease, transform 0.2s ease, border-color 0.2s ease; }}
-        .card:hover {{ box-shadow: 0 8px 32px rgba(37,99,235,0.1); transform: translateY(-2px); border-color: #bfdbfe; }}
+        .card {{ transition: box-shadow 0.4s ease, transform 0.4s ease, border-color 0.4s ease; }}
+        .card:hover {{ box-shadow: 0 12px 40px rgba(37,99,235,0.12); transform: translateY(-4px); border-color: #93c5fd; }}
 
         /* ── Badge pill ── */
         .badge {{ display: inline-flex; align-items: center; gap: 0.3rem; font-size: 0.65rem; font-weight: 800; letter-spacing: 0.12em; text-transform: uppercase; padding: 0.25rem 0.65rem; border-radius: 999px; }}
+        .badge-premium {{ background: linear-gradient(135deg, #1e3a8a, #3b82f6); color: white; border: none; box-shadow: 0 4px 15px rgba(37,99,235,0.3); }}
 
         /* ── Mobile menu ── */
         #mobile-menu {{ display: none; }}
@@ -283,7 +285,7 @@ def render_base_template(title: str, content: str, is_home: bool = True) -> str:
     <div id="progress-bar"></div>
 
     <!-- ── Navbar ── -->
-    <nav class="sticky top-0 z-[100] bg-white/95 backdrop-blur-xl border-b border-gray-100 shadow-[0_1px_12px_rgba(0,0,0,0.06)]">
+    <nav class="sticky top-0 z-[100] bg-white/70 backdrop-blur-2xl border-b border-gray-100/50 shadow-[0_4px_30px_rgba(0,0,0,0.03)]">
         <div class="max-w-6xl mx-auto px-5 h-16 flex items-center justify-between gap-4">
 
             <a href="{root}index.html" class="flex items-center gap-2 shrink-0 group">
@@ -426,10 +428,11 @@ def render_post_page(post: dict, img_path: str) -> None:
             </header>
 
             <!-- Hero image -->
-            <figure class="mb-12 rounded-2xl overflow-hidden shadow-lg">
+            <figure class="mb-12 rounded-3xl overflow-hidden shadow-2xl border border-gray-100/50 relative group">
+                <div class="absolute inset-0 bg-gradient-to-t from-gray-900/20 to-transparent z-10 pointer-events-none"></div>
                 <img src="{img_src}"
                      alt="{post_title}"
-                     class="w-full aspect-video object-cover"
+                     class="w-full h-auto max-h-[450px] object-cover group-hover:scale-[1.02] transition-transform duration-700 ease-in-out"
                      loading="eager">
             </figure>
 
@@ -466,22 +469,22 @@ def build_homepage(all_posts: list, hero_summary: str, target_id: int) -> None:
     # ── Featured hero (compact, editorial) ──────────────────────────
     hero_html = f"""
     <section id="latest" class="mb-16 reveal">
-        <div class="relative rounded-2xl overflow-hidden bg-gray-900 h-[380px] md:h-[440px] flex items-end">
+        <div class="relative rounded-[2rem] overflow-hidden bg-gray-950 h-[320px] md:h-[400px] flex items-end shadow-2xl group">
             <img src="{hero_img}"
                  alt="{hero["title"]}"
-                 class="absolute inset-0 w-full h-full object-cover opacity-30">
-            <div class="absolute inset-0 bg-gradient-to-t from-gray-950 via-gray-900/60 to-transparent"></div>
-            <div class="relative z-10 p-7 md:p-12 max-w-2xl">
+                 class="absolute inset-0 w-full h-full object-cover opacity-40 group-hover:opacity-50 group-hover:scale-105 transition-all duration-700 ease-in-out">
+            <div class="absolute inset-0 bg-gradient-to-t from-gray-950 via-gray-950/60 to-transparent"></div>
+            <div class="relative z-10 p-7 md:p-12 max-w-2xl translate-y-2 group-hover:translate-y-0 transition-transform duration-500">
                 <div class="flex flex-wrap items-center gap-2 mb-4">
-                    <span class="badge bg-blue-600 text-white">Featured</span>
-                    <span class="text-gray-400 text-xs font-medium">{hero["created_at"][:10]}</span>
+                    <span class="badge badge-premium">Featured</span>
+                    <span class="text-gray-300 text-xs font-semibold tracking-wide uppercase">{hero["created_at"][:10]}</span>
                 </div>
-                <h2 class="text-2xl md:text-4xl font-extrabold text-white mb-4 leading-tight tracking-tight clamp-3">{hero["title"]}</h2>
-                <p class="text-gray-300 text-sm md:text-base mb-6 leading-relaxed clamp-2">{hero_summary}</p>
+                <h2 class="text-2xl md:text-4xl font-extrabold text-white mb-4 leading-tight tracking-tight clamp-3 drop-shadow-lg">{hero["title"]}</h2>
+                <p class="text-gray-300 text-sm md:text-base mb-6 leading-relaxed clamp-2 drop-shadow-md">{hero_summary}</p>
                 <a href="posts/post_{hero["id"]}.html"
-                   class="inline-flex items-center gap-2 bg-white text-gray-900 px-6 py-2.5 rounded-full font-bold text-sm hover:bg-blue-600 hover:text-white transition-all group">
+                   class="inline-flex items-center gap-2 bg-white/90 backdrop-blur-sm text-gray-900 px-6 py-2.5 rounded-full font-bold text-sm hover:bg-white hover:text-blue-600 hover:shadow-lg hover:shadow-white/20 transition-all group/btn">
                     Read Full Report
-                    <span class="group-hover:translate-x-1 transition-transform">→</span>
+                    <span class="group-hover/btn:translate-x-1 transition-transform">→</span>
                 </a>
             </div>
         </div>
@@ -595,13 +598,13 @@ def generate_article() -> None:
 
     prompt = """
 Write a professional, in-depth technology news article dated today in 2026.
-Do NOT mention that this is AI-generated or automated. Write as a human journalist.
+CRITICAL: Do NOT mention that this is AI-generated, automated, or written by an AI. Write as a human journalist. Do NOT use phrases like "As an AI", "I am a bot", or refer to your own generation process.
 
 Return ONLY in this exact format with no extra commentary:
 TITLE: [Concise, factual, compelling title — no clickbait]
 CATEGORY: [Breaking, Deep Dive, or Analysis]
 SUMMARY: [Professional 2-sentence summary for the homepage]
-IMAGE_PROMPT: [3 comma-separated keywords for a relevant tech image, e.g. solar,panel,efficiency]
+IMAGE_PROMPT: [3 comma-separated keywords for a relevant tech image, e.g. quantum,computing,processor]
 BODY:
 [1200 words of formatted markdown. Use ## for H2 headers. Use ### for H3 headers.
 Use **bold** for emphasis. Use bullet lists with - prefix.
