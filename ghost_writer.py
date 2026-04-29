@@ -634,8 +634,14 @@ CONCLUSION:
 """
 
     response = None
-    models_to_try = ["gemini-2.5-flash", "gemini-flash-latest", "gemini-2.0-flash", "gemini-2.0-flash-lite-001", "gemini-1.5-flash"]
-    
+    models_to_try = [
+        "gemini-2.5-flash",
+        "gemini-flash-latest",
+        "gemini-2.0-flash",
+        "gemini-2.0-flash-lite-001",
+        "gemini-1.5-flash-8b",
+        "gemini-1.5-flash"
+    ]
     for model_id in models_to_try:
         print(f"Trying generation with model: {model_id}")
         try:
@@ -653,25 +659,9 @@ CONCLUSION:
     text = response.text if response and response.text else None
     
     if not text:
-        print("All generation attempts failed due to API limits. Using emergency fallback post.")
-        text = f"""TITLE: Classified Network Broadcast #{target_id}
-CATEGORY: Breaking
-SUMMARY: This is an automated diagnostic transmission confirming that the database pipeline is operational while primary AI neural networks recover from rate limiting.
-IMAGE_PROMPT: technology,server,datacenter
-BODY:
-## Secure Diagnostic Transmission
-
-The primary artificial intelligence neural networks (Gemini APIs) have currently exhausted their free-tier request quotas for the day. 
-
-This is an emergency fallback post generated automatically by the Ghost Writer orchestrator to verify that the **Supabase Database Insertion** and **GitHub Actions UI Deployment** pipelines are still fully functional.
-
-- **Database Link**: Nominal
-- **UI Rendering**: Active
-- **Automated Fallback**: Engaged
-
-Normal intelligence broadcasts will automatically resume once the global API quota resets.
-CONCLUSION:
-End of diagnostic transmission."""
+        print("All generation attempts failed due to API limits. Skipping generation to prevent short/dummy posts.")
+        rebuild_site()
+        return
 
     # Parse metadata
     try:
