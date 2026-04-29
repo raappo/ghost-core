@@ -1,0 +1,35 @@
+name: Ghost Writer Bot
+on:
+  schedule:
+    - cron: '0 0 * * *' # This runs every night at midnight.
+  workflow_dispatch: # This allows you to run it manually to test!
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.9'
+
+      - name: Install dependencies
+        run: pip install google-generativeai supabase
+
+      - name: Run Ghost Writer
+        env:
+          GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
+          SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+          SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
+        run: python ghost_writer.py
+
+      - name: Commit and Push changes
+        run: |
+          git config --global user.name 'GhostBot'
+          git config --global user.email 'bot@ghost.com'
+          git add .
+          git commit -m "Ghost posted a new article" || exit 0
+          git push
