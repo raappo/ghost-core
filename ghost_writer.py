@@ -31,33 +31,29 @@ def download_and_store_image(keywords: str, post_id: int) -> str:
     safe_kw = re.sub(r"[^a-zA-Z0-9,\s]", "", keywords)[:80].strip()
     encoded_kw = urllib.parse.quote(safe_kw)
     
-    import random
-    fallbacks = [
-        "https://images.unsplash.com/photo-1518770660439-4636190af475?w=1600&h=900&fit=crop",
-        "https://images.unsplash.com/photo-1550751827-4bd374c3f58b?w=1600&h=900&fit=crop",
-        "https://images.unsplash.com/photo-1526374965328-7f61d4dc18c5?w=1600&h=900&fit=crop",
-        "https://images.unsplash.com/photo-1451187580459-43490279c0fa?w=1600&h=900&fit=crop",
-        "https://images.unsplash.com/photo-1535223289827-42f1e9919769?w=1600&h=900&fit=crop",
-        "https://images.unsplash.com/photo-1614064641913-6b17a159f8ed?w=1600&h=900&fit=crop"
-    ]
+    url = f"https://source.unsplash.com/1600x900/?{encoded_kw},technology"
     
-    urls_to_try = [
-        f"https://image.pollinations.ai/prompt/technological%20{encoded_kw}?width=1600&height=900&nologo=true",
-        random.choice(fallbacks)
-    ]
+    try:
+        r = requests.get(url, timeout=15, allow_redirects=True)
+        if r.status_code == 200 and len(r.content) > 5000:
+            with open(local_path, "wb") as f:
+                f.write(r.content)
+            return local_path
+    except Exception as e:
+        print(f"Error downloading from Unsplash: {e}")
 
-    for url in urls_to_try:
-        try:
-            r = requests.get(url, timeout=15, allow_redirects=True)
-            if r.status_code == 200 and len(r.content) > 5000:
-                with open(local_path, "wb") as f:
-                    f.write(r.content)
-                return local_path
-        except Exception:
-            pass
-
-    # Failsafe if download fails
-    return fallbacks[post_id % len(fallbacks)]
+    # Fallback to a guaranteed unsplash image if dynamic fetch fails
+    fallback_url = "https://images.unsplash.com/photo-1518770660439-4636190af475?w=1600&h=900&fit=crop"
+    try:
+        r = requests.get(fallback_url, timeout=15, allow_redirects=True)
+        if r.status_code == 200:
+            with open(local_path, "wb") as f:
+                f.write(r.content)
+            return local_path
+    except Exception:
+        pass
+        
+    return local_path
 
 def get_asset_url(post_id: int, root: str = "", title: str = "technology") -> str:
     """Return the best available image URL for a post, downloading it if necessary."""
@@ -69,7 +65,7 @@ def get_asset_url(post_id: int, root: str = "", title: str = "technology") -> st
     res = download_and_store_image(title, post_id)
     if res.startswith("assets/"):
         return f"{root}{res}"
-    return res
+    return f"{root}{local}"
 
 # ─────────────────────────────────────────────
 # 3. Supabase Helpers
@@ -79,7 +75,10 @@ def get_next_available_id() -> int:
     existing = {row["id"] for row in result.data}
     if not existing:
         return 1
-    return max(existing) + 1
+    for i in range(1, max(existing) + 2):
+        if i not in existing:
+            return i
+    return 1
 
 # ─────────────────────────────────────────────
 # 4. Markdown → HTML Converter
@@ -104,7 +103,7 @@ def markdown_to_html(text: str) -> str:
             content = " ".join(in_para_lines).strip()
             if content:
                 html_parts.append(
-                    f'<p class="mb-8 text-neutral-300 text-lg leading-relaxed">{inline_markdown(content)}</p>'
+                    f'<p class="mb-8 leading-relaxed text-gray-700">{inline_markdown(content)}</p>'
                 )
             in_para_lines = []
 
@@ -179,7 +178,7 @@ def apply_html_styles(html_content: str) -> str:
         (r"<h4(?![^>]*class)[^>]*>(.*?)</h4>",
          r'<h4 class="text-xl font-bold mt-8 mb-3 text-neutral-200">\1</h4>'),
         (r"<p(?![^>]*class)[^>]*>(.*?)</p>",
-         r'<p class="mb-8 text-neutral-300 text-lg leading-relaxed">\1</p>'),
+         r'<p class="mb-8 leading-relaxed text-gray-700">\1</p>'),
         (r"<ul(?![^>]*class)[^>]*>",
          r'<ul class="list-disc pl-6 mb-8 space-y-3 text-neutral-300 text-lg leading-relaxed">'),
         (r"<ol(?![^>]*class)[^>]*>",
@@ -216,7 +215,7 @@ def process_body_content(raw_content: str) -> str:
         if conclusion_text.strip():
             text += "\n\n## In Conclusion\n\n" + conclusion_text.strip()
 
-    text = re.sub(r"^(TITLE|CATEGORY|SUMMARY|IMAGE_PROMPT):.*\n?", "", text, flags=re.MULTILINE).strip()
+    text = re.sub(r"^(TITLE|CATEGORY|SUMMARY|KEYWORDS|IMAGE_PROMPT):.*\n?", "", text, flags=re.MULTILINE).strip()
 
     if re.search(r"<(h[1-6]|ul|ol|blockquote|table)\b", text, re.IGNORECASE):
         return apply_html_styles(text)
@@ -374,8 +373,10 @@ def render_base_template(title: str, content: str, is_home: bool = True) -> str:
             </a>
 
             <div class="hidden md:flex items-center gap-8">
-                <a href="{root}index.html"           class="text-[11px] font-bold uppercase tracking-[0.2em] text-neutral-400 hover:text-white transition-colors">Intelligence</a>
+                <a href="{root}index.html"           class="text-[11px] font-bold uppercase tracking-[0.2em] text-neutral-400 hover:text-white transition-colors">Home</a>
+                <a href="{root}index.html#trending"  class="text-[11px] font-bold uppercase tracking-[0.2em] text-neutral-400 hover:text-white transition-colors">Trending</a>
                 <a href="{root}index.html#archive"   class="text-[11px] font-bold uppercase tracking-[0.2em] text-neutral-400 hover:text-white transition-colors">Archive</a>
+                <a href="{root}index.html#membership" class="text-[11px] font-bold uppercase tracking-[0.2em] text-neutral-400 hover:text-white transition-colors">Membership</a>
             </div>
 
             <div class="flex items-center gap-4">
@@ -389,8 +390,10 @@ def render_base_template(title: str, content: str, is_home: bool = True) -> str:
         </div>
         <div id="mobile-menu" class="hidden md:hidden bg-dark-900 border-b border-neutral-800 px-6 py-4 absolute w-full">
             <ul class="flex flex-col gap-4">
-                <li><a href="{root}index.html" class="text-sm font-bold uppercase tracking-widest text-neutral-300 hover:text-brand-400">Intelligence</a></li>
+                <li><a href="{root}index.html" class="text-sm font-bold uppercase tracking-widest text-neutral-300 hover:text-brand-400">Home</a></li>
+                <li><a href="{root}index.html#trending" class="text-sm font-bold uppercase tracking-widest text-neutral-300 hover:text-brand-400">Trending</a></li>
                 <li><a href="{root}index.html#archive" class="text-sm font-bold uppercase tracking-widest text-neutral-300 hover:text-brand-400">Archive</a></li>
+                <li><a href="{root}index.html#membership" class="text-sm font-bold uppercase tracking-widest text-neutral-300 hover:text-brand-400">Membership</a></li>
             </ul>
         </div>
     </nav>
@@ -416,8 +419,10 @@ def render_base_template(title: str, content: str, is_home: bool = True) -> str:
                 <div class="md:col-span-3">
                     <h4 class="font-bold uppercase tracking-[0.2em] text-[10px] text-neutral-500 mb-5">Navigation</h4>
                     <ul class="space-y-3 text-sm text-neutral-400">
-                        <li><a href="{root}index.html" class="hover:text-brand-400 transition-colors">Front Page</a></li>
-                        <li><a href="{root}index.html#archive" class="hover:text-brand-400 transition-colors">Archives</a></li>
+                        <li><a href="{root}index.html" class="hover:text-brand-400 transition-colors">Home</a></li>
+                        <li><a href="{root}index.html#trending" class="hover:text-brand-400 transition-colors">Trending</a></li>
+                        <li><a href="{root}index.html#archive" class="hover:text-brand-400 transition-colors">Archive</a></li>
+                        <li><a href="{root}index.html#membership" class="hover:text-brand-400 transition-colors">Membership</a></li>
                     </ul>
                 </div>
                 <div class="md:col-span-4">
@@ -599,7 +604,7 @@ def rebuild_site() -> None:
     summary = "Latest intelligence briefing."
     if "SUMMARY:" in body:
         try:
-            summary = body.split("SUMMARY:")[1].split("IMAGE_PROMPT:")[0].strip()
+            summary = body.split("SUMMARY:")[1].split("KEYWORDS:")[0].strip()
         except:
             pass
     elif body:
@@ -613,24 +618,20 @@ def rebuild_site() -> None:
     print("Site rebuilt successfully.")
 
 def generate_article() -> None:
-    target_id = get_next_available_id()
-
     prompt = """
+You are the Lead Editor for The Verge in 2026.
 Write a professional, deeply detailed, multi-paragraph technology news article dated today in 2026.
 CRITICAL: Do NOT mention that this is AI-generated, automated, or written by an AI. Write exactly like a human tech journalist.
 CRITICAL: Write at least 4-5 substantive paragraphs. Expand heavily on technical details, market impact, and future prospects. Avoid short stubs.
 
 Return ONLY in this exact format with no extra commentary:
 TITLE: [Concise, factual, compelling title]
-CATEGORY: [Breaking, Deep Dive, or Analysis]
 SUMMARY: [Professional 2-sentence summary]
-IMAGE_PROMPT: [3 comma-separated keywords for a relevant tech image, e.g. quantum,computing,processor]
+KEYWORDS: [3 comma-separated keywords for a relevant tech image, e.g. quantum,computing,processor]
 BODY:
-[At least 800-1200 words of deeply researched formatted markdown. 
-Use ## for H2 headers. Use ### for H3 headers.
+[At least 1500 words of deeply researched formatted markdown. 
+Use ## and ### for headers.
 Write substantive, long paragraphs separated by blank lines. Dive deep into the specific technology, how it works, and who is building it.]
-CONCLUSION:
-[2-3 sentences of forward-looking final thoughts]
 """
 
     response = None
@@ -666,16 +667,17 @@ CONCLUSION:
     # Parse metadata
     try:
         title     = re.search(r"TITLE:\s*(.*)",        text).group(1).strip()
-        category  = re.search(r"CATEGORY:\s*(.*)",     text).group(1).strip()
         summary   = re.search(r"SUMMARY:\s*(.*)",      text).group(1).strip()
-        img_kw    = re.search(r"IMAGE_PROMPT:\s*(.*)", text).group(1).strip()
+        img_kw    = re.search(r"KEYWORDS:\s*(.*)",     text).group(1).strip()
     except Exception:
-        title, category, summary, img_kw = (
-            "Tech Intelligence 2026", "Breaking",
+        title, summary, img_kw = (
+            "Tech Intelligence 2026",
             "The latest in global technology.", "technology,innovation,2026"
         )
 
     print(f"Metadata extracted: {title} | {img_kw}")
+
+    target_id = get_next_available_id()
 
     # Download & store image
     try:
@@ -683,7 +685,7 @@ CONCLUSION:
         print(f"✓ Image stored at: {img_path}")
     except Exception as e:
         print(f"Failed to download image: {e}")
-        img_path = f"https://picsum.photos/seed/raappopost{target_id}/1600/900"
+        img_path = f"assets/image_{target_id}.jpg"
 
     # Persist to Supabase
     try:
